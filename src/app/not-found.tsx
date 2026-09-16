@@ -12,18 +12,18 @@ export default function NotFound() {
         That page is not here.
       </h1>
       <p className="text-sm leading-7 text-muted-foreground">
-        The surfaces in this product are the application, enrollment
-        information, the status monitor, and the producer desk.
+        The surfaces in this product are Marketplace plans, the application,
+        account status, enrollment information, and Admin.
       </p>
       <div className="flex flex-wrap gap-3">
         <Link href="/" className={cn(buttonVariants({ size: "lg" }))}>
-          Apply
+          Marketplace
         </Link>
         <Link
-          href="/status"
+          href="/account"
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
         >
-          Status
+          Account
         </Link>
       </div>
     </div>

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       {
         ok: false,
         error:
-          "Producer portal is not configured. Set ACASHI_PRODUCER_PASSWORD or ACASHI_PRODUCER_MAGIC.",
+          "Admin portal is not configured. Set ACASHI_PRODUCER_PASSWORD or ACASHI_PRODUCER_MAGIC.",
       },
       { status: 503 }
     );
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
   if (!producerCredentialsMatch({ password, token })) {
     return NextResponse.json(
-      { ok: false, error: "Those producer credentials did not match." },
+      { ok: false, error: "Those Admin credentials did not match." },
       { status: 401 }
     );
   }

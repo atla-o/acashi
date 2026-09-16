@@ -6,7 +6,7 @@ import {
   verifyProducerSessionToken,
 } from "@/lib/producer-auth";
 
-export default async function ProducerDeskLayout({
+export default async function AdminDeskLayout({
   children,
 }: {
   children: ReactNode;
@@ -14,7 +14,7 @@ export default async function ProducerDeskLayout({
   const jar = await cookies();
   const token = jar.get(PRODUCER_COOKIE)?.value ?? "";
   if (!verifyProducerSessionToken(token)) {
-    redirect("/producer/login");
+    redirect("/admin/login");
   }
   return children;
 }

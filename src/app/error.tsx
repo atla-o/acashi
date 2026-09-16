@@ -25,8 +25,8 @@ export default function ErrorPage({
         This page did not load.
       </h1>
       <p className="text-sm leading-7 text-muted-foreground">
-        Try again, or return to the application form. Acashi is not emergency
-        care and not a marketplace.
+        Try again, or return to Marketplace. Acashi is not emergency
+        care and not Healthplanfinder.
       </p>
       <div className="flex flex-wrap gap-3">
         <button
@@ -40,7 +40,7 @@ export default function ErrorPage({
           href="/"
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
         >
-          Apply
+          Marketplace
         </Link>
       </div>
     </div>

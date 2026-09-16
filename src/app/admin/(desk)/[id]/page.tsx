@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProducerDetail } from "@/components/producer-detail";
+import { producerApplication } from "@/lib/application";
 import { readApplicationById } from "@/lib/application-store";
 import { producerDefaults } from "@/lib/producer";
 
 export const metadata: Metadata = {
-  title: "Application file",
+  title: "Admin file",
 };
 
 export const dynamic = "force-dynamic";
 
-export default async function ProducerDetailPage({
+export default async function AdminDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -21,7 +22,7 @@ export default async function ProducerDetailPage({
   return (
     <div className="mx-auto max-w-6xl px-5 py-16 md:py-20">
       <ProducerDetail
-        application={application}
+        application={producerApplication(application)}
         agentDefaults={producerDefaults()}
       />
     </div>

@@ -82,6 +82,7 @@ function asRecord(
 function firestorePayload(record: ApplicationRecord) {
   const data: Record<string, unknown> = { ...record };
   delete data.id;
+  delete data.ssn;
   return {
     ...data,
     submittedAt: Timestamp.fromDate(new Date(record.submittedAt)),

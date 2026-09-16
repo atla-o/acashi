@@ -8,12 +8,12 @@ import {
 import { producerDefaults } from "@/lib/producer";
 
 export const metadata: Metadata = {
-  title: "Producer pipeline",
+  title: "Admin pipeline",
 };
 
 export const dynamic = "force-dynamic";
 
-export default async function ProducerHomePage() {
+export default async function AdminHomePage() {
   const agent = producerDefaults();
   let applications: ApplicationRecord[] = [];
   let loadError: string | null = null;
@@ -25,18 +25,19 @@ export default async function ProducerHomePage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-16 md:py-20">
       <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-        Pipeline
+        Admin · pipeline
       </p>
       <h1 className="font-heading mt-3 text-4xl tracking-tight md:text-5xl">
         Applications
       </h1>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-        About 20 Washington FFM files a month. Move new → in progress → ready
-        to submit, then export JSON or CSV for HealthSherpa or HealthCare.gov
-        handoff. Existing legal entity — writing producer{" "}
+        Washington Healthplanfinder files. Move new → in progress → ready to
+        submit, then export JSON or CSV for producer handoff. Existing legal
+        entity — writing producer{" "}
         <span className="text-foreground">{agent.agentName || "—"}</span>
-        {agent.agentNpn ? ` · NPN ${agent.agentNpn}` : ""}. Not Covered
-        California. Status changes are stored on the application.
+        {agent.agentNpn ? ` · NPN ${agent.agentNpn}` : ""}. Status changes are
+        stored on the application. SSN is shown on the open file, not on this
+        list.
       </p>
       <div className="mt-12">
         {loadError ? (

@@ -1,10 +1,10 @@
 # Acashi
 
-Acashi is **Affordable Care Act Marketplace coverage** under **Devo** (lateral health), focused on **Washington FFM / HealthCare.gov**. It is a producer **application portal**: a multi-step consumer wizard, retainable agent-assistance consent, status tracking, and export for handoff.
+Acashi is **Affordable Care Act Marketplace coverage** under **Devo** (lateral health), focused on **Washington Healthplanfinder** (WAHBE). It is an interest portal: browse public plan landscape data, file an application (name, DOB, address, income, SSN, household), track status, and an **Admin** producer desk.
 
-It is **not HealthCare.gov**, **not Covered California**, not a state-based marketplace, and not an FFM/EDE web-broker. Washington consumers enroll on HealthCare.gov. Eligibility, plan selection, and enrollment happen there or with a licensed agent. Acashi does not quote plans, recommend carriers, or guarantee a subsidy.
+It is **not Healthplanfinder**, **not WAHBE**, **not HealthCare.gov**, and not an EDE/web-broker. Washington is a **state-based Marketplace**. Consumers enroll on [Healthplanfinder](https://www.wahealthplanfinder.org). Plan selection on this site is interest only. Acashi does not quote a personalized APTC, bind a plan, or complete enrollment.
 
-**Producer path:** Founder licensing is **Washington OIC**. Devo uses the existing legal entity; agent name and NPN live on each application (env defaults, editable on the producer desk). FFM assist waits on PY2027 registration/certification listing (RCL). Until then the portal captures a complete application plus consent and supports JSON/CSV export for HealthSherpa or manual enrollment.
+**Producer path:** Founder licensing is **Washington OIC**. Devo uses the existing legal entity; agent name and NPN live on each application (env defaults, editable on Admin). Export is for licensed-producer handoff to Healthplanfinder — not FFM RCL / HealthCare.gov as the primary path.
 
 Parent brand: Devo. Siblings: Phenomatch, Antiporn, Lessfret, Lightround. Public family: [devoutshaman.com](https://devoutshaman.com). The **o** mark on this site links there.
 
@@ -16,49 +16,52 @@ Publisher identity: **Devo / atla-o**. Public GitHub: [github.com/atla-o/acashi]
 
 | Path | Purpose |
 | --- | --- |
-| `/` | Product copy + consumer application wizard (Washington default) |
-| `/enrollment` | What enrollment is, APTC at a high level, HealthCare.gov path |
-| `/status` | Status monitor (application id + email) |
-| `/producer/login` | Password or magic-link gate for the producer desk |
-| `/producer` | Pipeline list (new / in progress / ready to submit / submitted / effectuated / closed) |
-| `/producer/[id]` | Application file, status changes, JSON/CSV export |
+| `/` | Marketplace: pick a Washington ZIP or county, scroll PY2026 medical plans |
+| `/apply` | Application: name, DOB, address, income, SSN, household, consent |
+| `/enrollment` | What enrollment is, APTC at a high level, Healthplanfinder path |
+| `/account` | Consumer account / status monitor (application id + email). `/status` redirects here |
+| `/admin/login` | Password or magic-link gate for the Admin / producer desk |
+| `/admin` | Pipeline list (new / in progress / ready to submit / submitted / effectuated / closed) |
+| `/admin/[id]` | Application file, status changes, SSN (producer), JSON/CSV export |
+| `/producer/*` | Redirects to the matching `/admin` route |
 | `POST /api/applications` | Create a draft (`submit: false`) or start a file |
 | `PATCH /api/applications` | Save progress or submit (`submit: true`) by `id` |
-| `GET /api/applications?id=&email=` | Public status for that id + email |
-| `POST /api/producer/login` | Set the producer session cookie |
+| `GET /api/applications?id=&email=` | Public status for that id + email (SSN masked) |
+| `POST /api/producer/login` | Set the Admin session cookie |
 | `POST /api/producer/logout` | Clear the session |
 | `GET /api/producer/applications` | Pipeline list (session required) |
 | `GET` / `PATCH /api/producer/applications/[id]` | File + status (session required) |
-| `GET /api/producer/applications/[id]/export?format=json\|csv` | Handoff download (session required) |
+| `GET /api/producer/applications/[id]/export?format=json\|csv` | Handoff download (session required; includes SSN for the producer) |
 
-## Consumer wizard
+## Three-step flow
 
-Six steps, mobile-width, save on each continue:
+1. **Browse** — ZIP or county. Scroll metal, issuer, age-40 landscape premium, and individual deductible from CMS Washington SBE QHP PUF PY2026 (cached in `src/data/`). Premiums are public list rates, not a personalized APTC quote. “Save interest” is not enrollment.
+2. **Apply** — name, date of birth, street address, income, SSN, household (already started), coverage, and agent-assistance consent. SSN is encrypted at rest (`ssnCiphertext`), never written to `localStorage` or URLs, and masked on the consumer account page.
+3. **Account + Admin** — consumer status on `/account`. **Admin** is the producer desk: login, pipeline, open file, status, export.
 
-1. Contact (name, email, phone, preferred contact)
-2. Location (defaults to Washington; ZIP 98001–99403; Washington county list)
-3. Household (people, ages, relationships, tobacco if 18+)
-4. Income and employment (band or exact amount, work status)
-5. Existing coverage (high level; not a medical or SEP determination)
-6. Review, portal disclaimer, **agent-assistance consent**
+Consent is a checkbox. On submit, Acashi stores the authorization text, a timestamp, and the requesting IP. That is retainable authorization for a licensed producer to assist on Healthplanfinder. It is not enrollment.
 
-Consent is a checkbox. On submit, Acashi stores the canonical CMS-style authorization text, a timestamp, and the requesting IP on the Firestore document. That is retainable authorization for a licensed agent/broker to assist with Marketplace enrollment. It is not enrollment.
+Progress is written to `acashi_applications`. Incomplete files are **in progress**. A complete submit with both checkboxes becomes **new** on the Admin pipeline.
 
-Progress is written to `acashi_applications` and also kept in this browser (`acashi.application.v1` + `acashi.application.draft.v2`). Incomplete files are **in progress**. A complete submit with both checkboxes becomes **new** on the producer pipeline.
+## Plan data
 
-## Producer workflow
+Washington is not in the federal QHP Landscape files (those cover FFM / SBE-FP states). The in-repo cache is built from the [CMS Washington SBE QHP PUF, plan year 2026](https://www.cms.gov/marketplace/resources/data/state-based-public-use-files) (`washingtonsbepuf2026.zip`): on-Exchange individual medical standard variants, county service areas, and age-40 individual rates by geographic rating area. ZIP→county uses public postal crosswalk data.
+
+Do not invent plans. Label premiums as landscape/public data. Acashi is not the official Exchange.
+
+## Admin workflow
 
 Target volume: ~20 applications per month.
 
-1. Sign in at `/producer/login` with `ACASHI_PRODUCER_PASSWORD`, or open `/producer/login?token=…` when `ACASHI_PRODUCER_MAGIC` is set.
+1. Sign in at `/admin/login` with `ACASHI_PRODUCER_PASSWORD`, or open `/admin/login?token=…` when `ACASHI_PRODUCER_MAGIC` is set.
 2. Open the pipeline. Filter by status.
-3. Open a file. Confirm household, income, coverage, and the consent audit (timestamp + IP).
-4. Confirm **writing producer name and NPN** on the file (the licensed agent who writes it — e.g. an SC NPN). Defaults come from `ACASHI_AGENT_NAME` / `ACASHI_AGENT_NPN`. Devo uses the **existing legal entity**; there is no entity-setup UI. Add producer notes.
+3. Open a file. Confirm household, income, address, DOB, SSN, plan interest, and the consent audit.
+4. Confirm **writing producer name and NPN** on the file. Defaults come from `ACASHI_AGENT_NAME` / `ACASHI_AGENT_NPN`. Devo uses the **existing legal entity**.
 5. Move status: **new → in progress → ready to submit**.
-6. Export **JSON** (primary) or **CSV** for HealthSherpa or a manual Marketplace session. The export header states this is not an FFM/EDE submission.
+6. Export **JSON** (primary) or **CSV** for Healthplanfinder handoff.
 7. After handoff, mark **submitted**. When coverage starts, **effectuated**. Otherwise **closed** (not a coverage denial).
 
-Do not enroll from this UI. Do not treat ready-to-submit as an exchange determination. There is no Covered California flow. When PY2027 RCL is open and the producer is listed, FFM assist can replace the export/handoff step — this app does not implement that yet.
+Do not enroll from this UI. Do not treat ready-to-submit as an Exchange determination.
 
 ## Run locally
 
@@ -68,6 +71,7 @@ ACASHI_STORE=memory \
 ACASHI_PRODUCER_PASSWORD=dev-password \
 ACASHI_AGENT_NAME=Devo \
 ACASHI_AGENT_NPN= \
+ACASHI_SSN_KEY= \
 npm run dev
 ```
 
@@ -75,7 +79,7 @@ Use `npm ci` (requires the committed `package-lock.json`). `npm install` is fine
 
 The app listens on [http://127.0.0.1:43218](http://127.0.0.1:43218) (also `localhost`). `next.config.ts` allows `127.0.0.1` as a Next.js 16 dev origin so `/_next` assets load on that host.
 
-Without GCP credentials, persist in process memory (`ACASHI_STORE=memory`). Producer login still needs a password or magic token.
+Without GCP credentials, persist in process memory (`ACASHI_STORE=memory`). Admin login still needs a password or magic token.
 
 ```bash
 npm run lint
@@ -92,9 +96,10 @@ App data lives in GCP project `devo-holding` (Firestore), reached by the Cloud R
 | `GCP_PROJECT` / `GOOGLE_CLOUD_PROJECT` | Cloud Run (set by deploy) | Must be `devo-holding` |
 | `FIRESTORE_DATABASE` | Optional | Defaults to `(default)` |
 | `ACASHI_STORE` | Local / tests only | Set to `memory` to skip Firestore |
-| `ACASHI_PRODUCER_PASSWORD` | Cloud Run / local | Shared producer desk password |
-| `ACASHI_PRODUCER_MAGIC` | Optional | Magic-link token for `/producer/login?token=` |
+| `ACASHI_PRODUCER_PASSWORD` | Cloud Run / local | Shared Admin desk password |
+| `ACASHI_PRODUCER_MAGIC` | Optional | Magic-link token for `/admin/login?token=` |
 | `ACASHI_PRODUCER_SECRET` | Optional | Session HMAC secret (defaults to the password or magic token) |
+| `ACASHI_SSN_KEY` | Cloud Run / local | AES-256-GCM key material for SSN at rest (falls back to producer secret, then a local-dev string) |
 | `ACASHI_AGENT_NAME` | Optional | Default producer name on new files and exports (default `Devo`) |
 | `ACASHI_AGENT_NPN` | Optional | Default National Producer Number stamped on files |
 | `PORT` | Cloud Run | Default `8080` in the image |
@@ -108,7 +113,7 @@ GitHub Actions deploy uses repository **variables** (not secrets) for Workload I
 
 The workflow preflight fails clearly if either variable is unset. `id-token: write` is required so `google-github-actions/auth` can mint the GitHub OIDC token.
 
-Producer password, magic token, session secret, and NPN are **Cloud Run service environment** (or Secret Manager), not GitHub Actions variables. This repo does not deploy those secrets. Set them on `acashi-web` in `devo-holding` when a human is ready.
+Producer password, magic token, session secret, SSN key, and NPN are **Cloud Run service environment** (or Secret Manager), not GitHub Actions variables. This repo does not deploy those secrets. Set them on `acashi-web` in `devo-holding` when a human is ready.
 
 ## Deploy (Cloud Run)
 
@@ -132,7 +137,7 @@ One-time cutover (ops, not this repo): map `acashi.devoutshaman.com` on Cloud Ru
 
 Collection: **`acashi_applications`**.
 
-Wizard sections, consent audit (`agentAssistanceConsentAt`, `agentAssistanceConsentIp`, `agentAssistanceConsentText`, `consentVersion`), and `statusHistory` live on the same documents. Older interest-form rows still read: legacy statuses `received` / `in_review` / `needs_info` / `ready_for_marketplace` map onto the current pipeline.
+Wizard sections, encrypted SSN (`ssnCiphertext`, `ssnLast4`), selected plan interest, consent audit (`agentAssistanceConsentAt`, `agentAssistanceConsentIp`, `agentAssistanceConsentText`, `consentVersion`), and `statusHistory` live on the same documents. Older interest-form rows still read: legacy statuses `received` / `in_review` / `needs_info` / `ready_for_marketplace` map onto the current pipeline.
 
 One-time, if the Native Firestore database is not already there:
 
@@ -148,12 +153,13 @@ Grant the Cloud Run runtime service account `roles/datastore.user` on `devo-hold
 
 ## What the UI includes
 
-- Landing copy that states Washington FFM / HealthCare.gov (not Covered California) and the PY2027 wait
-- Enrollment information: what enrollment is, APTC at a high level, licensed producer, path to HealthCare.gov
-- A six-step wizard defaulting to Washington with county/ZIP for this state
+- Marketplace browse of cached Washington PY2026 medical plans (metal, issuer, landscape premium, deductible)
+- Landing copy that states Washington Healthplanfinder / WAHBE (not HealthCare.gov FFM)
+- Enrollment information: what enrollment is, APTC at a high level, licensed producer, path to Healthplanfinder
+- Application for name, DOB, address, income, SSN, and household
 - Explicit agent-assistance consent (checkbox + stored timestamp + IP)
-- Status monitor for the current pipeline
-- Producer desk: gated list, detail, status changes, NPN/agent name, JSON/CSV export
+- Consumer account monitor with masked SSN
+- Admin desk: gated list, detail (full SSN for the producer), status changes, NPN/agent name, JSON/CSV export
 - Persistent footer disclaimer
 
-There are no fake eligibility results, quotes, carrier recommendations, or enrollment completions.
+There are no fake eligibility results, personalized APTC quotes, carrier recommendations, or enrollment completions.
