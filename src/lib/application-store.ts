@@ -3,14 +3,11 @@ import type {
   ApplicationDraft,
   ApplicationRecord,
   ApplicationStatus,
-  HouseholdMember,
-  StatusHistoryEntry,
 } from "@/lib/application";
 import {
+  applicationRecordFromStored,
   emailsMatch,
-  householdSizeOf,
   isApplicationId,
-  normalizeApplicationStatus,
   reduceApplicationSave,
 } from "@/lib/application";
 import { GCP_PROJECT_ID, gcp } from "@/lib/gcp";
@@ -68,138 +65,18 @@ function toIsoOrNull(value: unknown): string | null {
   return toIso(value);
 }
 
-function asMembers(value: unknown, fallbackName: string): HouseholdMember[] {
-  if (Array.isArray(value) && value.length > 0) {
-    return value.filter(
-      (member): member is HouseholdMember =>
-        Boolean(member) &&
-        typeof member === "object" &&
-        typeof (member as HouseholdMember).fullName === "string"
-    );
-  }
-  return [
-    {
-      id: "legacy-self",
-      fullName: fallbackName,
-      age: null,
-      relationship: "self",
-      tobaccoUse: "not_asked",
-      seekingCoverage: true,
-    },
-  ];
-}
-
-function asHistory(value: unknown): StatusHistoryEntry[] {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((entry) => {
-    if (!entry || typeof entry !== "object") return [];
-    const row = entry as Record<string, unknown>;
-    const status = normalizeApplicationStatus(row.status);
-    if (!status || typeof row.at !== "string") return [];
-    const by =
-      row.by === "applicant" || row.by === "producer" || row.by === "system"
-        ? row.by
-        : "system";
-    return [
-      {
-        status,
-        at: row.at,
-        by,
-        note: typeof row.note === "string" ? row.note : "",
-      },
-    ];
-  });
-}
-
 function asRecord(
   id: string,
   data: Record<string, unknown>
 ): ApplicationRecord | null {
-  if (typeof data.fullName !== "string" || typeof data.email !== "string") {
-    return null;
-  }
-
-  const status = normalizeApplicationStatus(data.status);
-  if (!status) return null;
-
-  const householdMembers = asMembers(data.householdMembers, data.fullName);
-  const preferredContactMethod =
-    data.preferredContactMethod === "phone" ||
-    data.preferredContactMethod === "either" ||
-    data.preferredContactMethod === "email"
-      ? data.preferredContactMethod
-      : "";
-
-  return {
-    id,
-    fullName: data.fullName,
-    email: data.email,
-    phone: typeof data.phone === "string" ? data.phone : "",
-    preferredContactMethod,
-    state: typeof data.state === "string" ? (data.state as ApplicationRecord["state"]) : "",
-    zip: typeof data.zip === "string" ? data.zip : "",
-    county: typeof data.county === "string" ? data.county : "",
-    householdMembers,
-    householdSize:
-      typeof data.householdSize === "number"
-        ? data.householdSize
-        : householdSizeOf({ householdMembers }),
-    incomeBand:
-      typeof data.incomeBand === "string"
-        ? (data.incomeBand as ApplicationRecord["incomeBand"])
-        : "",
-    annualIncome: typeof data.annualIncome === "string" ? data.annualIncome : "",
-    employmentStatus:
-      typeof data.employmentStatus === "string"
-        ? (data.employmentStatus as ApplicationRecord["employmentStatus"])
-        : "",
-    employerName: typeof data.employerName === "string" ? data.employerName : "",
-    employerOffersCoverage:
-      data.employerOffersCoverage === "yes" ||
-      data.employerOffersCoverage === "no" ||
-      data.employerOffersCoverage === "unsure"
-        ? data.employerOffersCoverage
-        : "",
-    hasCurrentCoverage:
-      data.hasCurrentCoverage === "yes" ||
-      data.hasCurrentCoverage === "no" ||
-      data.hasCurrentCoverage === "unsure"
-        ? data.hasCurrentCoverage
-        : "",
-    currentCoverageType:
-      typeof data.currentCoverageType === "string"
-        ? (data.currentCoverageType as ApplicationRecord["currentCoverageType"])
-        : "",
-    losingCoverageSoon:
-      data.losingCoverageSoon === "yes" ||
-      data.losingCoverageSoon === "no" ||
-      data.losingCoverageSoon === "unsure"
-        ? data.losingCoverageSoon
-        : "",
-    notes: typeof data.notes === "string" ? data.notes : "",
-    acceptedDisclaimer: data.acceptedDisclaimer === true,
-    agentAssistanceConsent: data.agentAssistanceConsent === true,
-    status,
+  return applicationRecordFromStored(id, {
+    ...data,
     submittedAt: toIso(data.submittedAt),
     updatedAt: toIso(data.updatedAt ?? data.submittedAt),
     completedAt: toIsoOrNull(data.completedAt),
-    statusHistory: asHistory(data.statusHistory),
     disclaimerAcceptedAt: toIsoOrNull(data.disclaimerAcceptedAt),
     agentAssistanceConsentAt: toIsoOrNull(data.agentAssistanceConsentAt),
-    agentAssistanceConsentIp:
-      typeof data.agentAssistanceConsentIp === "string"
-        ? data.agentAssistanceConsentIp
-        : null,
-    agentAssistanceConsentText:
-      typeof data.agentAssistanceConsentText === "string"
-        ? data.agentAssistanceConsentText
-        : null,
-    consentVersion:
-      typeof data.consentVersion === "string" ? data.consentVersion : null,
-    producerNotes: typeof data.producerNotes === "string" ? data.producerNotes : "",
-    agentName: typeof data.agentName === "string" ? data.agentName : "",
-    agentNpn: typeof data.agentNpn === "string" ? data.agentNpn : "",
-  };
+  });
 }
 
 function firestorePayload(record: ApplicationRecord) {

@@ -94,6 +94,7 @@ export function ProducerPipeline({
                 <th className="px-4 py-3 font-medium">Applicant</th>
                 <th className="px-4 py-3 font-medium">Where</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Writer</th>
                 <th className="px-4 py-3 font-medium">Consent</th>
                 <th className="px-4 py-3 font-medium">Updated</th>
               </tr>
@@ -111,6 +112,12 @@ export function ProducerPipeline({
                     {row.state || "—"} {row.zip}
                   </td>
                   <td className="px-4 py-3">{statusLabels[row.status]}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {row.agentName || "—"}
+                    {row.agentNpn ? (
+                      <p className="text-xs">NPN {row.agentNpn}</p>
+                    ) : null}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {row.agentAssistanceConsent ? "Yes" : "No"}
                   </td>

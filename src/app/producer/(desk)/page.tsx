@@ -33,10 +33,10 @@ export default async function ProducerHomePage() {
       <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
         About 20 Washington FFM files a month. Move new → in progress → ready
         to submit, then export JSON or CSV for HealthSherpa or HealthCare.gov
-        handoff. Not Covered California. Agent{" "}
+        handoff. Existing legal entity — writing producer{" "}
         <span className="text-foreground">{agent.agentName || "—"}</span>
-        {agent.agentNpn ? ` · NPN ${agent.agentNpn}` : ""}. Status changes are
-        stored on the application.
+        {agent.agentNpn ? ` · NPN ${agent.agentNpn}` : ""}. Not Covered
+        California. Status changes are stored on the application.
       </p>
       <div className="mt-12">
         {loadError ? (

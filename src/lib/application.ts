@@ -494,7 +494,7 @@ function sanitizeMemberId(value: unknown) {
   return crypto.randomUUID();
 }
 
-function sanitizeMember(input: unknown): HouseholdMember {
+export function sanitizeHouseholdMember(input: unknown): HouseholdMember {
   const body =
     input && typeof input === "object" ? (input as Record<string, unknown>) : {};
   const age = parseInteger(body.age);
@@ -512,6 +512,173 @@ function sanitizeMember(input: unknown): HouseholdMember {
   };
 }
 
+export function householdMembersFromStored(
+  value: unknown,
+  fallbackName: string
+): HouseholdMember[] {
+  if (Array.isArray(value) && value.length > 0) {
+    return value.map((member) => sanitizeHouseholdMember(member));
+  }
+  return [
+    {
+      id: "legacy-self",
+      fullName: fallbackName,
+      age: null,
+      relationship: "self",
+      tobaccoUse: "not_asked",
+      seekingCoverage: true,
+    },
+  ];
+}
+
+function storedToIso(value: unknown): string {
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === "string" && value) {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) return date.toISOString();
+    return value;
+  }
+  if (value && typeof value === "object") {
+    const withDate = value as { toDate?: unknown; seconds?: unknown };
+    if (typeof withDate.toDate === "function") {
+      const date = (withDate.toDate as () => Date).call(value);
+      if (date instanceof Date && !Number.isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+    }
+    if (typeof withDate.seconds === "number") {
+      return new Date(withDate.seconds * 1000).toISOString();
+    }
+  }
+  return new Date().toISOString();
+}
+
+function storedToIsoOrNull(value: unknown): string | null {
+  if (value === null || value === undefined || value === "") return null;
+  return storedToIso(value);
+}
+
+export function statusHistoryFromStored(value: unknown): StatusHistoryEntry[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const row = entry as Record<string, unknown>;
+    const status = normalizeApplicationStatus(row.status);
+    if (!status) return [];
+    const at = storedToIsoOrNull(row.at);
+    if (!at) return [];
+    const by =
+      row.by === "applicant" || row.by === "producer" || row.by === "system"
+        ? row.by
+        : "system";
+    return [
+      {
+        status,
+        at,
+        by,
+        note: typeof row.note === "string" ? row.note : "",
+      },
+    ];
+  });
+}
+
+export function applicationRecordFromStored(
+  id: string,
+  data: Record<string, unknown>
+): ApplicationRecord | null {
+  if (typeof data.fullName !== "string" || typeof data.email !== "string") {
+    return null;
+  }
+
+  const status = normalizeApplicationStatus(data.status);
+  if (!status) return null;
+
+  const householdMembers = householdMembersFromStored(
+    data.householdMembers,
+    data.fullName
+  );
+  const preferredContactMethod =
+    data.preferredContactMethod === "phone" ||
+    data.preferredContactMethod === "either" ||
+    data.preferredContactMethod === "email"
+      ? data.preferredContactMethod
+      : "";
+
+  return {
+    id,
+    fullName: data.fullName,
+    email: data.email,
+    phone: typeof data.phone === "string" ? data.phone : "",
+    preferredContactMethod,
+    state:
+      typeof data.state === "string"
+        ? (data.state as ApplicationRecord["state"])
+        : "",
+    zip: typeof data.zip === "string" ? data.zip : "",
+    county: typeof data.county === "string" ? data.county : "",
+    householdMembers,
+    householdSize:
+      typeof data.householdSize === "number"
+        ? data.householdSize
+        : householdSizeOf({ householdMembers }),
+    incomeBand:
+      typeof data.incomeBand === "string"
+        ? (data.incomeBand as ApplicationRecord["incomeBand"])
+        : "",
+    annualIncome: typeof data.annualIncome === "string" ? data.annualIncome : "",
+    employmentStatus:
+      typeof data.employmentStatus === "string"
+        ? (data.employmentStatus as ApplicationRecord["employmentStatus"])
+        : "",
+    employerName: typeof data.employerName === "string" ? data.employerName : "",
+    employerOffersCoverage:
+      data.employerOffersCoverage === "yes" ||
+      data.employerOffersCoverage === "no" ||
+      data.employerOffersCoverage === "unsure"
+        ? data.employerOffersCoverage
+        : "",
+    hasCurrentCoverage:
+      data.hasCurrentCoverage === "yes" ||
+      data.hasCurrentCoverage === "no" ||
+      data.hasCurrentCoverage === "unsure"
+        ? data.hasCurrentCoverage
+        : "",
+    currentCoverageType:
+      typeof data.currentCoverageType === "string"
+        ? (data.currentCoverageType as ApplicationRecord["currentCoverageType"])
+        : "",
+    losingCoverageSoon:
+      data.losingCoverageSoon === "yes" ||
+      data.losingCoverageSoon === "no" ||
+      data.losingCoverageSoon === "unsure"
+        ? data.losingCoverageSoon
+        : "",
+    notes: typeof data.notes === "string" ? data.notes : "",
+    acceptedDisclaimer: data.acceptedDisclaimer === true,
+    agentAssistanceConsent: data.agentAssistanceConsent === true,
+    status,
+    submittedAt: storedToIso(data.submittedAt),
+    updatedAt: storedToIso(data.updatedAt ?? data.submittedAt),
+    completedAt: storedToIsoOrNull(data.completedAt),
+    statusHistory: statusHistoryFromStored(data.statusHistory),
+    disclaimerAcceptedAt: storedToIsoOrNull(data.disclaimerAcceptedAt),
+    agentAssistanceConsentAt: storedToIsoOrNull(data.agentAssistanceConsentAt),
+    agentAssistanceConsentIp:
+      typeof data.agentAssistanceConsentIp === "string"
+        ? data.agentAssistanceConsentIp
+        : null,
+    agentAssistanceConsentText:
+      typeof data.agentAssistanceConsentText === "string"
+        ? data.agentAssistanceConsentText
+        : null,
+    consentVersion:
+      typeof data.consentVersion === "string" ? data.consentVersion : null,
+    producerNotes: typeof data.producerNotes === "string" ? data.producerNotes : "",
+    agentName: typeof data.agentName === "string" ? data.agentName : "",
+    agentNpn: typeof data.agentNpn === "string" ? data.agentNpn : "",
+  };
+}
+
 export function sanitizeApplicationDraft(input: unknown): ApplicationDraft {
   const body =
     input && typeof input === "object" ? (input as Record<string, unknown>) : {};
@@ -519,7 +686,9 @@ export function sanitizeApplicationDraft(input: unknown): ApplicationDraft {
   const membersInput = Array.isArray(body.householdMembers)
     ? body.householdMembers
     : [];
-  let householdMembers = membersInput.slice(0, MAX_MEMBERS).map(sanitizeMember);
+  let householdMembers = membersInput
+    .slice(0, MAX_MEMBERS)
+    .map(sanitizeHouseholdMember);
 
   if (
     householdMembers.length === 0 &&

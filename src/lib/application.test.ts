@@ -2,17 +2,22 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   agentAssistanceConsentText,
+  applicationRecordFromStored,
   applicationToCsv,
   applicationToExportPayload,
   emailsMatch,
   emptyApplicationDraft,
   homeLicenseState,
+  householdMembersFromStored,
   isApplicationId,
   isWashingtonZip,
   normalizeApplicationStatus,
   parseApplicationDraft,
+  producerApplication,
+  publicApplication,
   reduceApplicationSave,
   reduceProducerPatch,
+  sanitizeHouseholdMember,
   validateWizardStep,
 } from "./application.ts";
 
@@ -277,3 +282,136 @@ test("adult household members need a tobacco answer", () => {
   if (parsed.ok) return;
   assert.ok(parsed.errors.householdMembers);
 });
+
+test("coerces stored household members instead of type-guarding them", () => {
+  const members = householdMembersFromStored(
+    [
+      {
+        id: "child-01ab",
+        fullName: "  Ada Jr  ",
+        age: "7",
+        relationship: "not-a-relationship",
+        seekingCoverage: false,
+      },
+      "junk",
+    ],
+    "Fallback"
+  );
+  assert.equal(members.length, 2);
+  assert.equal(members[0].fullName, "Ada Jr");
+  assert.equal(members[0].age, 7);
+  assert.equal(members[0].relationship, "other");
+  assert.equal(members[0].tobaccoUse, "not_asked");
+  assert.equal(members[0].seekingCoverage, false);
+  assert.equal(members[1].fullName, "");
+  assert.equal(members[1].relationship, "other");
+
+  const legacy = householdMembersFromStored(undefined, "Ada Lovelace");
+  assert.equal(legacy[0].id, "legacy-self");
+  assert.equal(legacy[0].fullName, "Ada Lovelace");
+
+  const sanitized = sanitizeHouseholdMember({
+    id: "n8K2mP0qR1sT",
+    fullName: "Ada Lovelace",
+    age: 36,
+    relationship: "self",
+    tobaccoUse: "no",
+  });
+  assert.equal(sanitized.seekingCoverage, true);
+});
+
+test("full wizard record round-trips through stored shape with writing NPN", () => {
+  const spouse = {
+    id: "spouse-9k2m",
+    fullName: "William King",
+    age: 38,
+    relationship: "spouse",
+    tobaccoUse: "no",
+    seekingCoverage: true,
+  };
+  const parsed = parseApplicationDraft({
+    ...valid,
+    householdMembers: [member, spouse],
+    notes: "WA FFM file for producer handoff.",
+  });
+  assert.equal(parsed.ok, true);
+  if (!parsed.ok) return;
+
+  const created = reduceApplicationSave({
+    existing: null,
+    draft: parsed.draft,
+    submit: true,
+    ip: "203.0.113.40",
+    now: "2026-09-16T18:00:00.000Z",
+    agentName: "Devo",
+    agentNpn: "",
+  });
+  assert.equal(created.ok, true);
+  if (!created.ok) return;
+  assert.equal(created.record.householdMembers.length, 2);
+  assert.equal(created.record.householdSize, 2);
+  assert.equal(created.record.county, "King");
+  assert.equal(created.record.state, "WA");
+  assert.equal(created.record.incomeBand, "50000_74999");
+  assert.equal(created.record.annualIncome, "62000");
+  assert.equal(created.record.employmentStatus, "employed");
+  assert.equal(created.record.employerName, "Analytical Engines");
+  assert.equal(created.record.consentVersion, "2026-09-acashi-wa-ffm");
+  assert.equal(created.record.agentAssistanceConsentIp, "203.0.113.40");
+
+  const assigned = reduceProducerPatch({
+    existing: created.record,
+    agentName: "Licensed Writer",
+    agentNpn: "12345678",
+    status: "ready_to_submit",
+    statusNote: "Writing producer NPN on file. Existing entity — no setup UI.",
+    now: "2026-09-16T18:10:00.000Z",
+  });
+  assert.equal(assigned.ok, true);
+  if (!assigned.ok) return;
+  assert.equal(assigned.record.agentName, "Licensed Writer");
+  assert.equal(assigned.record.agentNpn, "12345678");
+
+  const { id, ...stored } = assigned.record;
+  const firestoreLike = {
+    ...stored,
+    submittedAt: { seconds: Date.parse(stored.submittedAt) / 1000 },
+    updatedAt: new Date(stored.updatedAt),
+    householdMembers: stored.householdMembers.map((row) => ({
+      ...row,
+      age: String(row.age),
+    })),
+  };
+  const revived = applicationRecordFromStored(id, firestoreLike);
+  assert.ok(revived);
+  if (!revived) return;
+  assert.equal(revived.fullName, "Ada Lovelace");
+  assert.equal(revived.email, "ada@example.com");
+  assert.equal(revived.phone, "206-555-0100");
+  assert.equal(revived.zip, "98101");
+  assert.equal(revived.county, "King");
+  assert.equal(revived.householdMembers[1].fullName, "William King");
+  assert.equal(revived.householdMembers[1].age, 38);
+  assert.equal(revived.householdMembers[1].relationship, "spouse");
+  assert.equal(revived.annualIncome, "62000");
+  assert.equal(revived.employerOffersCoverage, "no");
+  assert.equal(revived.hasCurrentCoverage, "no");
+  assert.equal(revived.losingCoverageSoon, "no");
+  assert.equal(revived.agentName, "Licensed Writer");
+  assert.equal(revived.agentNpn, "12345678");
+  assert.equal(revived.status, "ready_to_submit");
+  assert.equal(revived.agentAssistanceConsent, true);
+  assert.equal(revived.agentAssistanceConsentText, agentAssistanceConsentText);
+  assert.equal(revived.statusHistory.length >= 2, true);
+
+  const publicView = publicApplication(revived);
+  assert.equal("agentNpn" in publicView, false);
+  const producerView = producerApplication(revived);
+  assert.equal(producerView.agentNpn, "12345678");
+  assert.equal(producerView.agentName, "Licensed Writer");
+
+  const payload = applicationToExportPayload(revived);
+  assert.equal(payload.producer.agentNpn, "12345678");
+  assert.match(payload.purpose, /Washington FFM/);
+});
+

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import {
   enrollmentInfo,
+  enrollmentPath,
   healthcareGov,
   homeLicenseRegulator,
   parentBrand,
@@ -17,7 +18,7 @@ export default function EnrollmentPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-16 md:py-20">
       <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-        Washington · FFM
+        Washington · FFM · HealthCare.gov
       </p>
       <h1 className="font-heading mt-3 text-4xl tracking-tight md:text-5xl">
         How enrollment works
@@ -27,18 +28,32 @@ export default function EnrollmentPage() {
         <a href={healthcareGov} className="underline underline-offset-3">
           HealthCare.gov
         </a>
-        , the Federally-Facilitated Marketplace. Acashi is not the exchange
-        and not Covered California. A licensed producer assists;{" "}
-        {parentBrand} licensing for this portal is {homeLicenseRegulator}.
+        , the Federally-Facilitated Marketplace. Acashi is not the exchange,
+        not Covered California, and not a quote tool. A licensed producer
+        assists. {parentBrand} uses its existing legal entity; licensing for
+        this market is {homeLicenseRegulator}.
       </p>
 
-      <ol className="mt-12 space-y-10">
-        {enrollmentInfo.map((section, index) => (
-          <li key={section.title} className="max-w-2xl">
+      <ol className="mt-12 grid gap-px bg-foreground/10 sm:grid-cols-3">
+        {enrollmentPath.map((step, index) => (
+          <li key={step.title} className="bg-background px-5 py-6">
             <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
               {String(index + 1).padStart(2, "0")}
             </p>
             <h2 className="font-heading mt-2 text-2xl tracking-tight">
+              {step.title}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              {step.body}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+      <ol className="mt-16 space-y-10">
+        {enrollmentInfo.map((section) => (
+          <li key={section.title} className="max-w-2xl">
+            <h2 className="font-heading text-2xl tracking-tight">
               {section.title}
             </h2>
             <p className="mt-3 text-sm leading-7 text-muted-foreground">
@@ -56,7 +71,7 @@ export default function EnrollmentPage() {
           href={healthcareGov}
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
         >
-          HealthCare.gov
+          Finish on HealthCare.gov
         </a>
       </div>
     </div>

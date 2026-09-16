@@ -53,7 +53,7 @@ Target volume: ~20 applications per month.
 1. Sign in at `/producer/login` with `ACASHI_PRODUCER_PASSWORD`, or open `/producer/login?token=…` when `ACASHI_PRODUCER_MAGIC` is set.
 2. Open the pipeline. Filter by status.
 3. Open a file. Confirm household, income, coverage, and the consent audit (timestamp + IP).
-4. Set agent name / NPN if the env defaults are wrong. Add producer notes.
+4. Confirm **writing producer name and NPN** on the file (the licensed agent who writes it — e.g. an SC NPN). Defaults come from `ACASHI_AGENT_NAME` / `ACASHI_AGENT_NPN`. Devo uses the **existing legal entity**; there is no entity-setup UI. Add producer notes.
 5. Move status: **new → in progress → ready to submit**.
 6. Export **JSON** (primary) or **CSV** for HealthSherpa or a manual Marketplace session. The export header states this is not an FFM/EDE submission.
 7. After handoff, mark **submitted**. When coverage starts, **effectuated**. Otherwise **closed** (not a coverage denial).

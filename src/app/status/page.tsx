@@ -20,7 +20,11 @@ export default function StatusPage() {
         After a successful submit, this browser keeps the id. Status is new, in
         progress, ready to submit, submitted, effectuated, or closed. This is
         not HealthCare.gov and not Covered California. Washington enrollment is
-        on the FFM.
+        on the FFM. See{" "}
+        <a href="/enrollment" className="underline underline-offset-3">
+          how enrollment works
+        </a>
+        .
       </p>
       <div className="mt-12">
         <Suspense fallback={<StatusLoading />}>

@@ -72,6 +72,36 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="border-b border-foreground/10">
+        <div className="mx-auto max-w-6xl px-5 py-16 md:py-20">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            Enrollment
+          </p>
+          <h2 className="font-heading mt-3 text-3xl tracking-tight">
+            Official Marketplace, licensed producer
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
+            Enrollment is applying, choosing a plan, and starting coverage on{" "}
+            <a href={healthcareGov} className="underline underline-offset-3">
+              HealthCare.gov
+            </a>
+            . A premium tax credit (APTC) may lower the monthly premium based
+            on household income — Acashi does not calculate or guarantee it.
+            A licensed producer assists using Devo’s existing entity. This site
+            does not quote plans.
+          </p>
+          <p className="mt-4 text-sm">
+            <a href="/enrollment" className="underline underline-offset-3">
+              How enrollment works
+            </a>
+            <span className="text-muted-foreground"> · </span>
+            <a href={healthcareGov} className="underline underline-offset-3">
+              HealthCare.gov
+            </a>
+          </p>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-5 py-16 md:py-20">
         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
           Application
@@ -109,10 +139,11 @@ export default function HomePage() {
               denial.
             </p>
             <p>
-              {parentBrand} is on a path to get licensed through{" "}
-              {homeLicenseRegulator} and use FFM when plan year 2027 opens.
-              Until then this portal captures a complete file and consent. It
-              does not pretend to be the exchange.
+              {parentBrand} uses its existing legal entity. A licensed
+              producer ({homeLicenseRegulator}; writing NPN on each file)
+              assists enrollment on HealthCare.gov. FFM assist waits on PY2027
+              RCL. Until then this portal captures a complete file and consent.
+              It does not pretend to be the exchange.
             </p>
           </aside>
           <ApplicationWizard />

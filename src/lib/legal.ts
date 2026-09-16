@@ -33,14 +33,29 @@ export const whatWeAreNot = [
   "Not complete until a licensed agent enrolls the household on HealthCare.gov.",
 ];
 
+export const enrollmentPath = [
+  {
+    title: "Learn",
+    body: "Read how Marketplace enrollment and premium tax credits work. Acashi does not quote plans or pick a carrier.",
+  },
+  {
+    title: "File",
+    body: "Complete the Washington application wizard and agent-assistance consent. The file is stored for a licensed producer.",
+  },
+  {
+    title: "Enroll on HealthCare.gov",
+    body: "A licensed producer helps you finish on the official FFM. Plan selection and effectuation happen on HealthCare.gov, not here.",
+  },
+] as const;
+
 export const enrollmentInfo = [
   {
     title: "What enrollment is",
-    body: "Enrollment means applying for an ACA health plan for a coverage year, picking a plan, and having that plan take effect. Acashi collects a complete file and consent so a licensed producer can help. This site does not enroll you, bind coverage, or issue a member ID.",
+    body: "Enrollment means applying for an ACA health plan for a coverage year, choosing a plan on the official Marketplace, and having that plan take effect with an issuer. Acashi collects a complete file and consent so a licensed producer can help. This site does not enroll you, bind coverage, quote a premium, or issue a member ID.",
   },
   {
     title: "Premium tax credits (APTC)",
-    body: "Many Marketplace applicants qualify for an advance premium tax credit based on expected household income and family size. That credit lowers the monthly premium. Acashi asks for an income band or amount so a producer has context. It does not calculate a credit, check IRS data, or guarantee a subsidy.",
+    body: "Many Marketplace applicants qualify for an advance premium tax credit based on expected household income and family size. The credit can lower the monthly premium. Cost-sharing reductions may also apply on some silver plans when income is in range. Acashi asks for an income band or amount so a producer has context. It does not calculate a credit, check IRS data, or guarantee a subsidy.",
   },
   {
     title: "Washington uses HealthCare.gov",
@@ -48,11 +63,11 @@ export const enrollmentInfo = [
   },
   {
     title: "Licensed producer",
-    body: "A licensed insurance producer assists with the application. Founder licensing for this portal is Washington OIC. Agent name and NPN are stored on the file (env defaults, editable on the producer desk). Authorizing assistance is not the same as being enrolled.",
+    body: "A licensed insurance producer assists with the application. This portal uses Devo’s existing legal entity — there is no company-setup step. The writing producer’s name and National Producer Number (NPN) are stored on each file. Founder licensing for the Washington market is OIC. Authorizing assistance is not the same as being enrolled.",
   },
   {
     title: "How to finish",
-    body: "Complete the Acashi wizard, including agent-assistance consent. A producer reviews the file and hands it to HealthSherpa or completes enrollment on HealthCare.gov. Until PY2027 FFM registration/certification listing is open, this portal is capture and handoff only.",
+    body: "Complete the Acashi wizard, including agent-assistance consent. Go to HealthCare.gov yourself or wait for the producer to hand the file to HealthSherpa or complete enrollment on HealthCare.gov. Until PY2027 FFM registration/certification listing is open, this portal is capture and handoff only.",
   },
 ] as const;
 

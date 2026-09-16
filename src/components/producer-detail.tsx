@@ -137,7 +137,11 @@ export function ProducerDetail({
               onChange={(event) => setStatusNote(event.target.value)}
             />
           </Field>
-          <Field label="Agent name" htmlFor="agentName">
+          <Field
+            label="Writing producer"
+            htmlFor="agentName"
+            hint="Licensed producer who writes this file. Existing legal entity — no company setup on this site."
+          >
             <input
               id="agentName"
               value={agentName}
@@ -148,7 +152,7 @@ export function ProducerDetail({
           <Field
             label="NPN"
             htmlFor="agentNpn"
-            hint="Defaults from ACASHI_AGENT_NPN."
+            hint="National Producer Number of the writing producer. Defaults from ACASHI_AGENT_NPN."
           >
             <input
               id="agentNpn"
