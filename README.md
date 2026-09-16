@@ -72,7 +72,7 @@ npm run dev
 
 Use `npm ci` (requires the committed `package-lock.json`). `npm install` is fine only when changing dependencies.
 
-The app listens on [http://127.0.0.1:43218](http://127.0.0.1:43218).
+The app listens on [http://127.0.0.1:43218](http://127.0.0.1:43218) (also `localhost`). `next.config.ts` allows `127.0.0.1` as a Next.js 16 dev origin so `/_next` assets load on that host.
 
 Without GCP credentials, persist in process memory (`ACASHI_STORE=memory`). Producer login still needs a password or magic token.
 
