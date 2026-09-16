@@ -53,12 +53,14 @@ App data lives in GCP project `devo-holding` (Firestore), reached by the Cloud R
 | `ACASHI_STORE` | Local / tests only | Set to `memory` to skip Firestore |
 | `PORT` | Cloud Run | Default `8080` in the image |
 
-GitHub Actions deploy secrets (same pattern as Lessfret):
+GitHub Actions deploy uses repository **variables** (not secrets) for Workload Identity Federation, same pattern as [atla-o/devo](https://github.com/atla-o/devo) `deploy.yml` (Settings → Secrets and variables → Actions → Variables):
 
-| Secret | Value |
+| Variable | Value |
 | --- | --- |
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | Full WIF provider resource name |
 | `GCP_SERVICE_ACCOUNT` | Deploy service-account email in `devo-holding` |
+
+The workflow preflight fails clearly if either variable is unset. `id-token: write` is required so `google-github-actions/auth` can mint the GitHub OIDC token.
 
 ## Deploy (Cloud Run)
 
