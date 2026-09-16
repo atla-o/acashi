@@ -17,7 +17,17 @@ import { GCP_PROJECT_ID, gcp } from "@/lib/gcp";
 import { producerDefaults } from "@/lib/producer";
 
 let client: Firestore | null = null;
-const memory = new Map<string, ApplicationRecord>();
+
+const globalForStore = globalThis as typeof globalThis & {
+  __acashiApplications?: Map<string, ApplicationRecord>;
+};
+
+function memoryMap() {
+  if (!globalForStore.__acashiApplications) {
+    globalForStore.__acashiApplications = new Map<string, ApplicationRecord>();
+  }
+  return globalForStore.__acashiApplications;
+}
 
 function memoryStoreEnabled() {
   return process.env.ACASHI_STORE === "memory";
@@ -226,14 +236,14 @@ async function withTimeout<T>(promise: Promise<T>, ms = 8000) {
 }
 
 export function resetMemoryStore() {
-  memory.clear();
+  memoryMap().clear();
 }
 
 export async function putApplication(
   record: ApplicationRecord
 ): Promise<ApplicationRecord> {
   if (memoryStoreEnabled()) {
-    memory.set(record.id, record);
+    memoryMap().set(record.id, record);
     return record;
   }
 
@@ -262,7 +272,7 @@ export async function readApplicationById(
   if (!isApplicationId(id)) return null;
 
   if (memoryStoreEnabled()) {
-    return memory.get(id) ?? null;
+    return memoryMap().get(id) ?? null;
   }
 
   const snap = await withTimeout(collection().doc(id).get());
@@ -272,7 +282,7 @@ export async function readApplicationById(
 
 export async function listApplications(status?: ApplicationStatus) {
   if (memoryStoreEnabled()) {
-    const rows = Array.from(memory.values()).sort((a, b) =>
+    const rows = Array.from(memoryMap().values()).sort((a, b) =>
       a.updatedAt < b.updatedAt ? 1 : -1
     );
     return status ? rows.filter((row) => row.status === status) : rows;

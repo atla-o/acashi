@@ -122,61 +122,60 @@ function draftFromPublic(application: ReturnType<typeof publicApplication>): App
 export function ApplicationWizard() {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
-  const [fields, setFields] = useState<ApplicationDraft>(() => ({
-    ...emptyApplicationDraft,
-    householdMembers: [newHouseholdMember("self")],
-  }));
+  const [fields, setFields] = useState<ApplicationDraft>(emptyApplicationDraft);
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [errors, setErrors] = useState<ApplicationFieldErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
+  const [hydrated, setHydrated] = useState(true);
 
   const step = wizardSteps[stepIndex] ?? wizardSteps[0];
 
   useEffect(() => {
     let cancelled = false;
     async function hydrate() {
-      const lookup = readLookup();
-      const local = readLocalDraft();
-      if (lookup) {
-        try {
-          const params = new URLSearchParams(lookup);
-          const response = await fetch(`/api/applications?${params.toString()}`, {
-            cache: "no-store",
-          });
-          const payload = (await response.json().catch(() => null)) as
-            | { ok: true; application: ReturnType<typeof publicApplication> }
-            | { ok: false }
-            | null;
-          if (!cancelled && payload && payload.ok) {
-            setApplicationId(payload.application.id);
-            setFields(draftFromPublic(payload.application));
-            if (local?.step) {
-              const index = wizardSteps.findIndex((item) => item.id === local.step);
-              if (index >= 0) setStepIndex(index);
+      try {
+        const lookup = readLookup();
+        const local = readLocalDraft();
+        if (lookup) {
+          try {
+            const params = new URLSearchParams(lookup);
+            const response = await fetch(`/api/applications?${params.toString()}`, {
+              cache: "no-store",
+            });
+            const payload = (await response.json().catch(() => null)) as
+              | { ok: true; application: ReturnType<typeof publicApplication> }
+              | { ok: false }
+              | null;
+            if (!cancelled && payload && payload.ok) {
+              setApplicationId(payload.application.id);
+              setFields(draftFromPublic(payload.application));
+              if (local?.step) {
+                const index = wizardSteps.findIndex((item) => item.id === local.step);
+                if (index >= 0) setStepIndex(index);
+              }
+              return;
             }
-            setHydrated(true);
-            return;
+          } catch {
+            /* use local */
           }
-        } catch {
-          /* use local */
         }
+        if (!cancelled && local) {
+          setFields({
+            ...local.fields,
+            householdMembers:
+              local.fields.householdMembers.length > 0
+                ? local.fields.householdMembers
+                : [newHouseholdMember("self")],
+          });
+          const index = wizardSteps.findIndex((item) => item.id === local.step);
+          if (index >= 0) setStepIndex(index);
+          if (lookup) setApplicationId(lookup.id);
+        }
+      } finally {
+        if (!cancelled) setHydrated(true);
       }
-      if (!cancelled && local) {
-        setFields({
-          ...local.fields,
-          householdMembers:
-            local.fields.householdMembers.length > 0
-              ? local.fields.householdMembers
-              : [newHouseholdMember("self")],
-        });
-        const index = wizardSteps.findIndex((item) => item.id === local.step);
-        if (index >= 0) setStepIndex(index);
-        if (lookup) setApplicationId(lookup.id);
-      }
-      if (!cancelled) setHydrated(true);
     }
     void hydrate();
     return () => {

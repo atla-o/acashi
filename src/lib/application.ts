@@ -307,7 +307,16 @@ export const emptyApplicationDraft: ApplicationDraft = {
   state: "",
   zip: "",
   county: "",
-  householdMembers: [],
+  householdMembers: [
+    {
+      id: "member-self",
+      fullName: "",
+      age: null,
+      relationship: "self",
+      tobaccoUse: "not_asked",
+      seekingCoverage: true,
+    },
+  ],
   incomeBand: "",
   annualIncome: "",
   employmentStatus: "",
