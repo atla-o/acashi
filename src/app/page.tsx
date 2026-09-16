@@ -1,5 +1,4 @@
 import { PlanBrowser } from "@/components/plan-browser";
-import { Separator } from "@/components/ui/separator";
 import {
   healthplanfinder,
   homeLicenseRegulator,
@@ -8,29 +7,25 @@ import {
   whatWeAre,
   whatWeAreNot,
 } from "@/lib/legal";
-import { landscapeNote, planSource, planYear } from "@/lib/plans";
 
 export default function HomePage() {
   return (
     <div>
-      <section className="mx-auto max-w-6xl px-5 py-10 md:py-14">
-        <h1 className="font-heading text-4xl tracking-tight md:text-5xl">
+      <section className="mx-auto max-w-6xl px-5 py-8 md:py-10">
+        <h1 className="font-heading text-3xl tracking-tight md:text-4xl">
           Find a health plan
         </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-          Washington ZIP or county. Scroll public PY{planYear} medical plans,
-          then save interest. Premiums are landscape list rates, not a
-          personalized APTC quote. Selection is not enrollment. Finish on{" "}
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+          Washington ZIP or county. Landscape list rates — not a personalized
+          APTC quote, not enrollment. Finish on{" "}
           <a href={healthplanfinder} className="underline underline-offset-3">
             Healthplanfinder
           </a>
           .
         </p>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
-          {landscapeNote} {planSource}
-        </p>
-        <Separator className="my-8" />
-        <PlanBrowser />
+        <div className="mt-6">
+          <PlanBrowser />
+        </div>
       </section>
 
       <section className="border-y border-foreground/10">
