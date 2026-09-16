@@ -1,7 +1,7 @@
 export const site = {
   name: "Acashi",
   tagline:
-    "Affordable Care Act Marketplace application portal. Complete file, consent, and producer handoff — not HealthCare.gov.",
+    "Washington FFM application portal. Complete HealthCare.gov file, consent, and producer handoff — not Covered California.",
   parent: "Devo",
   publisher: "Devo / atla-o",
   familyDomain: "devoutshaman.com",
@@ -9,11 +9,12 @@ export const site = {
   publicHost: "https://acashi.devoutshaman.com",
   github: "https://github.com/atla-o/acashi",
   description:
-    "Acashi captures ACA Marketplace application data and agent-assistance consent, then tracks status for producer handoff. Not HealthCare.gov. Enrollment is on the official exchange or with a licensed agent.",
+    "Acashi captures Washington ACA Marketplace application data and agent-assistance consent for HealthCare.gov (FFM) handoff. Not Covered California. Not HealthCare.gov.",
 } as const;
 
 export const nav = [
   { href: "/", label: "Apply" },
+  { href: "/enrollment", label: "Enrollment" },
   { href: "/status", label: "Status" },
 ] as const;
 

@@ -1,0 +1,64 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  enrollmentInfo,
+  healthcareGov,
+  homeLicenseRegulator,
+  parentBrand,
+} from "@/lib/legal";
+import { cn } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Enrollment on HealthCare.gov",
+};
+
+export default function EnrollmentPage() {
+  return (
+    <div className="mx-auto max-w-6xl px-5 py-16 md:py-20">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        Washington · FFM
+      </p>
+      <h1 className="font-heading mt-3 text-4xl tracking-tight md:text-5xl">
+        How enrollment works
+      </h1>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
+        Washington residents enroll on{" "}
+        <a href={healthcareGov} className="underline underline-offset-3">
+          HealthCare.gov
+        </a>
+        , the Federally-Facilitated Marketplace. Acashi is not the exchange
+        and not Covered California. A licensed producer assists;{" "}
+        {parentBrand} licensing for this portal is {homeLicenseRegulator}.
+      </p>
+
+      <ol className="mt-12 space-y-10">
+        {enrollmentInfo.map((section, index) => (
+          <li key={section.title} className="max-w-2xl">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+              {String(index + 1).padStart(2, "0")}
+            </p>
+            <h2 className="font-heading mt-2 text-2xl tracking-tight">
+              {section.title}
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
+              {section.body}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-14 flex flex-wrap gap-3">
+        <Link href="/" className={cn(buttonVariants({ size: "lg" }))}>
+          Start an application
+        </Link>
+        <a
+          href={healthcareGov}
+          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+        >
+          HealthCare.gov
+        </a>
+      </div>
+    </div>
+  );
+}

@@ -19,7 +19,8 @@ export default function StatusPage() {
         Look up a file with its application id and the email used on the form.
         After a successful submit, this browser keeps the id. Status is new, in
         progress, ready to submit, submitted, effectuated, or closed. This is
-        not HealthCare.gov.
+        not HealthCare.gov and not Covered California. Washington enrollment is
+        on the FFM.
       </p>
       <div className="mt-12">
         <Suspense fallback={<StatusLoading />}>

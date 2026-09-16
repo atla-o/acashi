@@ -1,7 +1,76 @@
 export const agentAssistanceConsentText =
-  "I authorize a licensed insurance agent or broker to assist me with applying for and enrolling in health coverage through the Health Insurance Marketplace. I understand this agent may collect and use the information in this application to help me complete enrollment on the official exchange (HealthCare.gov or my state-based marketplace). This authorization is part of my application record and may be retained as required. I understand that granting this authorization does not complete enrollment, does not determine eligibility or a premium tax credit, and does not guarantee a subsidy or a plan.";
+  "I authorize a licensed insurance agent or broker to assist me with applying for and enrolling in health coverage through the Health Insurance Marketplace. I understand this agent may collect and use the information in this application to help me complete enrollment on HealthCare.gov, the Federally-Facilitated Marketplace (FFM) used in Washington. This authorization is part of my application record and may be retained as required. I understand that granting this authorization does not complete enrollment, does not determine eligibility or a premium tax credit, and does not guarantee a subsidy or a plan. Washington does not use Covered California or another state-based marketplace.";
 
-export const consentVersion = "2026-09-acashi-portal";
+export const consentVersion = "2026-09-acashi-wa-ffm";
+
+export const homeLicenseState = "WA" as const;
+export const homeLicenseRegulator =
+  "Washington Office of the Insurance Commissioner (OIC)";
+
+export const washingtonCounties = [
+  "Adams",
+  "Asotin",
+  "Benton",
+  "Chelan",
+  "Clallam",
+  "Clark",
+  "Columbia",
+  "Cowlitz",
+  "Douglas",
+  "Ferry",
+  "Franklin",
+  "Garfield",
+  "Grant",
+  "Grays Harbor",
+  "Island",
+  "Jefferson",
+  "King",
+  "Kitsap",
+  "Kittitas",
+  "Klickitat",
+  "Lewis",
+  "Lincoln",
+  "Mason",
+  "Okanogan",
+  "Pacific",
+  "Pend Oreille",
+  "Pierce",
+  "San Juan",
+  "Skagit",
+  "Skamania",
+  "Snohomish",
+  "Spokane",
+  "Stevens",
+  "Thurston",
+  "Wahkiakum",
+  "Walla Walla",
+  "Whatcom",
+  "Whitman",
+  "Yakima",
+] as const;
+
+export type WashingtonCounty = (typeof washingtonCounties)[number];
+
+export function normalizeWashingtonCounty(value: string) {
+  const stripped = value.replace(/\s+county$/i, "").trim();
+  const match = washingtonCounties.find(
+    (county) => county.toLowerCase() === stripped.toLowerCase()
+  );
+  return match ?? stripped;
+}
+
+export function isWashingtonCounty(value: string): value is WashingtonCounty {
+  return washingtonCounties.some(
+    (county) => county === normalizeWashingtonCounty(value)
+  );
+}
+
+export function isWashingtonZip(value: string) {
+  const five = value.slice(0, 5);
+  if (!/^\d{5}$/.test(five)) return false;
+  const n = Number.parseInt(five, 10);
+  return n >= 98001 && n <= 99403;
+}
 
 export const applicationStatuses = [
   "new",
@@ -45,7 +114,7 @@ export const statusCopy: Record<ApplicationStatus, string> = {
   ready_to_submit:
     "The file is ready for a licensed agent to enroll the household on the official Marketplace. This site does not submit to FFM.",
   submitted:
-    "A licensed agent has handed this file off for Marketplace enrollment (HealthSherpa or manual). Confirm on HealthCare.gov or with the agent.",
+    "A licensed agent has handed this file off for Marketplace enrollment (HealthSherpa or manual). Confirm on HealthCare.gov (Washington FFM) or with the agent.",
   effectuated:
     "Coverage is marked as started. Confirm official Marketplace or insurer notices — Acashi is not the exchange.",
   closed:
@@ -304,7 +373,7 @@ export const emptyApplicationDraft: ApplicationDraft = {
   email: "",
   phone: "",
   preferredContactMethod: "email",
-  state: "",
+  state: homeLicenseState,
   zip: "",
   county: "",
   householdMembers: [
@@ -463,6 +532,12 @@ export function sanitizeApplicationDraft(input: unknown): ApplicationDraft {
 
   const stateRaw =
     typeof body.state === "string" ? body.state.trim().toUpperCase() : "";
+  const state = isState(stateRaw) ? stateRaw : "";
+  const countyRaw = trim(body.county, MAX_COUNTY);
+  const county =
+    state === homeLicenseState
+      ? normalizeWashingtonCounty(countyRaw)
+      : countyRaw;
 
   return {
     fullName: trim(body.fullName, MAX_NAME),
@@ -471,9 +546,9 @@ export function sanitizeApplicationDraft(input: unknown): ApplicationDraft {
     preferredContactMethod: isContactMethod(body.preferredContactMethod)
       ? body.preferredContactMethod
       : "",
-    state: isState(stateRaw) ? stateRaw : "",
+    state,
     zip: trim(body.zip, 10),
-    county: trim(body.county, MAX_COUNTY),
+    county,
     householdMembers,
     incomeBand: isIncomeBand(body.incomeBand) ? body.incomeBand : "",
     annualIncome: trim(body.annualIncome, MAX_INCOME).replace(/[$,\s]/g, ""),
@@ -511,6 +586,13 @@ function addFormatErrors(
   }
   if (draft.zip && !isZip(draft.zip)) {
     errors.zip = "Use a 5-digit ZIP, or ZIP+4.";
+  } else if (
+    draft.zip &&
+    draft.state === homeLicenseState &&
+    !isWashingtonZip(draft.zip)
+  ) {
+    errors.zip =
+      "Washington ZIPs are 98001–99403. This portal is FFM / HealthCare.gov, not Covered California.";
   }
   if (draft.annualIncome && !/^\d+(\.\d{1,2})?$/.test(draft.annualIncome)) {
     errors.annualIncome = "Use a number, or leave this blank and pick a band.";
@@ -536,7 +618,17 @@ export function validateWizardStep(
   if (step === "location") {
     if (!isState(draft.state)) errors.state = "Choose a state.";
     if (!draft.zip) errors.zip = "Enter a ZIP code.";
-    if (!draft.county) errors.county = "Enter a county.";
+    if (!draft.county) {
+      errors.county =
+        draft.state === homeLicenseState
+          ? "Choose a Washington county."
+          : "Enter a county.";
+    } else if (
+      draft.state === homeLicenseState &&
+      !isWashingtonCounty(draft.county)
+    ) {
+      errors.county = "Choose a Washington county.";
+    }
   }
 
   if (step === "household") {
@@ -939,7 +1031,7 @@ export function applicationToExportPayload(record: ApplicationRecord) {
   return {
     exportedAt: new Date().toISOString(),
     purpose:
-      "Handoff for HealthSherpa or manual Marketplace enrollment. Not an FFM/EDE submission. Acashi is not HealthCare.gov.",
+      "Handoff for HealthSherpa or manual Marketplace enrollment on HealthCare.gov (Washington FFM). Not an FFM/EDE submission. Not Covered California. Acashi is not HealthCare.gov.",
     ffmAssist: "Waits on PY2027 registration/certification listing (RCL).",
     producer: {
       agentName: record.agentName,

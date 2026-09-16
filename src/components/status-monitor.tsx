@@ -337,8 +337,9 @@ function StatusCard({ application }: { application: ApplicationRecord }) {
         >
           HealthCare.gov
         </a>{" "}
-        or your state exchange. Acashi does not complete that step here. FFM
-        enrollment assist waits on PY2027 RCL.
+        or with the producer. Washington uses the FFM, not a state-based
+        marketplace. Acashi does not complete that step here. FFM enrollment
+        assist waits on PY2027 RCL.
       </p>
     </section>
   );

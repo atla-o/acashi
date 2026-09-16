@@ -33,8 +33,9 @@ export default async function ProducerLoginPage({
         Sign in
       </h1>
       <p className="mt-4 text-sm leading-7 text-muted-foreground">
-        Password or magic-link gate for Devo ops. This desk is not HealthCare.gov
-        and does not submit to FFM. Enrollment assist waits on PY2027 RCL.
+        Password or magic-link gate for Devo ops. Washington OIC licensing
+        path. This desk is not HealthCare.gov, not Covered California, and does
+        not submit to FFM. Enrollment assist waits on PY2027 RCL.
       </p>
       <div className="mt-10">
         <ProducerLoginForm

@@ -6,7 +6,7 @@ export function ScopeNotice() {
   return (
     <Alert className="border-foreground/12 bg-muted/40 px-4 py-3">
       <Info />
-      <AlertTitle>Not HealthCare.gov. Not enrollment.</AlertTitle>
+      <AlertTitle>Washington FFM. Not Covered California.</AlertTitle>
       <AlertDescription className="mt-1 text-pretty">
         {portalDisclaimer} Official marketplace:{" "}
         <a href={healthcareGov}>{healthcareGov.replace("https://", "")}</a>

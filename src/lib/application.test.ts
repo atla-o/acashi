@@ -5,7 +5,10 @@ import {
   applicationToCsv,
   applicationToExportPayload,
   emailsMatch,
+  emptyApplicationDraft,
+  homeLicenseState,
   isApplicationId,
+  isWashingtonZip,
   normalizeApplicationStatus,
   parseApplicationDraft,
   reduceApplicationSave,
@@ -25,11 +28,11 @@ const member = {
 const valid = {
   fullName: "Ada Lovelace",
   email: "ada@example.com",
-  phone: "415-555-0100",
+  phone: "206-555-0100",
   preferredContactMethod: "email",
-  state: "CA",
-  zip: "94107",
-  county: "San Francisco",
+  state: "WA",
+  zip: "98101",
+  county: "King",
   householdMembers: [member],
   incomeBand: "50000_74999",
   annualIncome: "62000",
@@ -50,8 +53,9 @@ test("accepts a complete application", () => {
   if (!parsed.ok) return;
   assert.equal(parsed.draft.email, "ada@example.com");
   assert.equal(parsed.draft.householdMembers.length, 1);
-  assert.equal(parsed.draft.zip, "94107");
-  assert.equal(parsed.draft.county, "San Francisco");
+  assert.equal(parsed.draft.zip, "98101");
+  assert.equal(parsed.draft.county, "King");
+  assert.equal(parsed.draft.state, "WA");
   assert.equal(parsed.draft.agentAssistanceConsent, true);
 });
 
@@ -85,10 +89,47 @@ test("rejects invalid ZIP, phone, and household member age", () => {
 test("accepts ZIP+4 and +1 phone", () => {
   const parsed = parseApplicationDraft({
     ...valid,
-    zip: "94107-1234",
-    phone: "+1 (415) 555-0100",
+    zip: "98101-1234",
+    phone: "+1 (206) 555-0100",
   });
   assert.equal(parsed.ok, true);
+});
+
+test("defaults new drafts to Washington and accepts King County wording", () => {
+  assert.equal(emptyApplicationDraft.state, homeLicenseState);
+  assert.equal(isWashingtonZip("98101"), true);
+  assert.equal(isWashingtonZip("94107"), false);
+  const parsed = parseApplicationDraft({
+    ...valid,
+    county: "King County",
+  });
+  assert.equal(parsed.ok, true);
+  if (!parsed.ok) return;
+  assert.equal(parsed.draft.county, "King");
+});
+
+test("rejects a California ZIP when state is Washington", () => {
+  const parsed = parseApplicationDraft({
+    ...valid,
+    zip: "94107",
+  });
+  assert.equal(parsed.ok, false);
+  if (parsed.ok) return;
+  assert.match(parsed.errors.zip ?? "", /98001/);
+});
+
+test("does not add a Covered California flow for CA files", () => {
+  const parsed = parseApplicationDraft({
+    ...valid,
+    state: "CA",
+    zip: "94107",
+    county: "San Francisco",
+  });
+  assert.equal(parsed.ok, true);
+  if (!parsed.ok) return;
+  assert.equal(parsed.draft.state, "CA");
+  assert.match(agentAssistanceConsentText, /HealthCare\.gov/);
+  assert.match(agentAssistanceConsentText, /Covered California/);
 });
 
 test("partial save requires a valid email only", () => {

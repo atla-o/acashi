@@ -31,6 +31,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/enrollment" className="hover:text-background">
+                Enrollment
+              </Link>
+            </li>
+            <li>
               <Link href="/status" className="hover:text-background">
                 Application status
               </Link>

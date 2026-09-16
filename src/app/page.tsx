@@ -1,6 +1,8 @@
 import { ApplicationWizard } from "@/components/application-wizard";
 import { Separator } from "@/components/ui/separator";
 import {
+  healthcareGov,
+  homeLicenseRegulator,
   parentBrand,
   productName,
   tagline,
@@ -24,10 +26,11 @@ export default function HomePage() {
               {tagline}
             </p>
             <p className="max-w-lg text-sm leading-7 text-muted-foreground">
-              Affordable Care Act marketplace coverage can come with a premium
-              tax credit. Acashi is a producer application portal: complete
-              household data, retainable agent-assistance consent, then handoff.
-              It does not sell a plan or complete enrollment on this site.
+              Washington households can get ACA coverage on HealthCare.gov, often
+              with a premium tax credit. Acashi is a producer application
+              portal: complete household data, retainable agent-assistance
+              consent, then handoff. It does not sell a plan or complete
+              enrollment on this site. Licensing path: {homeLicenseRegulator}.
             </p>
           </div>
           <aside className="self-end space-y-4 border border-foreground/10 p-6">
@@ -35,8 +38,8 @@ export default function HomePage() {
               In one sentence
             </p>
             <p className="text-sm leading-6">
-              Save a complete Marketplace file here. A licensed agent enrolls
-              you on the official exchange. This is not HealthCare.gov.
+              Save a complete HealthCare.gov file here. A licensed producer
+              enrolls you on the Washington FFM. This is not Covered California.
             </p>
           </aside>
         </div>
@@ -77,18 +80,26 @@ export default function HomePage() {
           Marketplace application
         </h2>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-          Six short steps. Save progress any time. Income is approximate.
-          Acashi does not compute a credit, quote a plan, or enroll you.
-          After submit, the status monitor uses your application id and email.
+          Six short steps. State defaults to Washington with county and ZIP for
+          this state. Income is approximate. Acashi does not compute a credit,
+          quote a plan, or enroll you. Read{" "}
+          <a href="/enrollment" className="underline underline-offset-3">
+            how enrollment works
+          </a>{" "}
+          before you start, or go to{" "}
+          <a href={healthcareGov} className="underline underline-offset-3">
+            HealthCare.gov
+          </a>
+          .
         </p>
         <Separator className="my-10" />
         <div className="grid gap-12 lg:grid-cols-[minmax(0,22rem)_1fr]">
           <aside className="space-y-4 text-sm leading-7 text-muted-foreground">
             <p>
               Open enrollment and special enrollment windows are set by the
-              federal or state marketplace, not by Acashi. If you already know
-              you need a plan, start on HealthCare.gov while this file is in
-              review.
+              federal Marketplace, not by Acashi. Washington uses HealthCare.gov
+              (FFM), not Covered California. If you already know you need a
+              plan, start on HealthCare.gov while this file is in review.
             </p>
             <p>
               Pipeline: new → in progress → ready to submit → submitted →
@@ -98,9 +109,10 @@ export default function HomePage() {
               denial.
             </p>
             <p>
-              Devo is on a path to get licensed and use FFM when plan year 2027
-              opens. Until then this portal captures a complete file and
-              consent. It does not pretend to be the exchange.
+              {parentBrand} is on a path to get licensed through{" "}
+              {homeLicenseRegulator} and use FFM when plan year 2027 opens.
+              Until then this portal captures a complete file and consent. It
+              does not pretend to be the exchange.
             </p>
           </aside>
           <ApplicationWizard />

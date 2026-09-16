@@ -13,8 +13,10 @@ import {
   emptyApplicationDraft,
   employmentStatusLabels,
   employmentStatuses,
+  homeLicenseState,
   incomeBandLabels,
   incomeBands,
+  isWashingtonCounty,
   newHouseholdMember,
   parseApplicationDraft,
   publicApplication,
@@ -22,6 +24,7 @@ import {
   relationships,
   usStates,
   validateWizardStep,
+  washingtonCounties,
   wizardSteps,
   yesNoUnsure,
   yesNoUnsureLabels,
@@ -578,58 +581,111 @@ function LocationStep({
   errors: ApplicationFieldErrors;
   update: <K extends keyof ApplicationDraft>(key: K, value: ApplicationDraft[K]) => void;
 }) {
+  const washington = fields.state === homeLicenseState;
   return (
-    <div className="grid gap-8 sm:grid-cols-3">
-      <Field label="State" htmlFor="state" error={errors.state}>
-        <select
-          id="state"
-          name="state"
-          value={fields.state}
-          aria-invalid={Boolean(errors.state)}
-          className={fieldClass(Boolean(errors.state))}
-          onChange={(event) => update("state", event.target.value as UsState | "")}
+    <div className="space-y-8">
+      <p className="text-sm leading-7 text-muted-foreground">
+        This portal is built for Washington FFM / HealthCare.gov. Default
+        state is Washington. There is no Covered California application here.
+      </p>
+      {!washington ? (
+        <p
+          role="status"
+          className="border border-foreground/12 px-4 py-3 text-sm leading-6"
         >
-          <option value="">Select state</option>
-          {usStates.map((state) => (
-            <option key={state.code} value={state.code}>
-              {state.name}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <Field
-        label="ZIP"
-        htmlFor="zip"
-        hint="Marketplace eligibility is local."
-        error={errors.zip}
-      >
-        <input
-          id="zip"
-          name="zip"
-          inputMode="numeric"
-          autoComplete="postal-code"
-          value={fields.zip}
-          aria-invalid={Boolean(errors.zip)}
-          className={fieldClass(Boolean(errors.zip))}
-          onChange={(event) => update("zip", event.target.value)}
-        />
-      </Field>
-      <Field
-        label="County"
-        htmlFor="county"
-        hint="As listed for your ZIP. This is not a plan quote."
-        error={errors.county}
-      >
-        <input
-          id="county"
-          name="county"
-          autoComplete="address-level2"
-          value={fields.county}
-          aria-invalid={Boolean(errors.county)}
-          className={fieldClass(Boolean(errors.county))}
-          onChange={(event) => update("county", event.target.value)}
-        />
-      </Field>
+          A non-Washington state is selected. Producer licensing for Acashi is
+          Washington OIC. Enrollment for Washington households is on
+          HealthCare.gov, not a state-based marketplace.
+        </p>
+      ) : null}
+      <div className="grid gap-8 sm:grid-cols-3">
+        <Field label="State" htmlFor="state" error={errors.state}>
+          <select
+            id="state"
+            name="state"
+            value={fields.state}
+            aria-invalid={Boolean(errors.state)}
+            className={fieldClass(Boolean(errors.state))}
+            onChange={(event) => {
+              const next = event.target.value as UsState | "";
+              update("state", next);
+              if (
+                next === homeLicenseState &&
+                fields.county &&
+                !isWashingtonCounty(fields.county)
+              ) {
+                update("county", "");
+              }
+            }}
+          >
+            <option value="">Select state</option>
+            {usStates.map((state) => (
+              <option key={state.code} value={state.code}>
+                {state.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field
+          label="ZIP"
+          htmlFor="zip"
+          hint={
+            washington
+              ? "Washington ZIPs are 98001–99403. Marketplace eligibility is local."
+              : "Marketplace eligibility is local."
+          }
+          error={errors.zip}
+        >
+          <input
+            id="zip"
+            name="zip"
+            inputMode="numeric"
+            autoComplete="postal-code"
+            value={fields.zip}
+            aria-invalid={Boolean(errors.zip)}
+            className={fieldClass(Boolean(errors.zip))}
+            onChange={(event) => update("zip", event.target.value)}
+          />
+        </Field>
+        <Field
+          label="County"
+          htmlFor="county"
+          hint={
+            washington
+              ? "Washington county as used on HealthCare.gov. This is not a plan quote."
+              : "As listed for your ZIP. This is not a plan quote."
+          }
+          error={errors.county}
+        >
+          {washington ? (
+            <select
+              id="county"
+              name="county"
+              value={isWashingtonCounty(fields.county) ? fields.county : ""}
+              aria-invalid={Boolean(errors.county)}
+              className={fieldClass(Boolean(errors.county))}
+              onChange={(event) => update("county", event.target.value)}
+            >
+              <option value="">Select county</option>
+              {washingtonCounties.map((county) => (
+                <option key={county} value={county}>
+                  {county}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id="county"
+              name="county"
+              autoComplete="address-level2"
+              value={fields.county}
+              aria-invalid={Boolean(errors.county)}
+              className={fieldClass(Boolean(errors.county))}
+              onChange={(event) => update("county", event.target.value)}
+            />
+          )}
+        </Field>
+      </div>
     </div>
   );
 }

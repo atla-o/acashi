@@ -1,10 +1,10 @@
 # Acashi
 
-Acashi is **Affordable Care Act Marketplace coverage** under **Devo** (lateral health). It is a producer **application portal**: a multi-step consumer wizard, retainable agent-assistance consent, status tracking, and export for handoff.
+Acashi is **Affordable Care Act Marketplace coverage** under **Devo** (lateral health), focused on **Washington FFM / HealthCare.gov**. It is a producer **application portal**: a multi-step consumer wizard, retainable agent-assistance consent, status tracking, and export for handoff.
 
-It is **not HealthCare.gov**, not a state-based marketplace, and not an FFM/EDE web-broker. Eligibility, plan selection, and enrollment happen on the official exchange or with a licensed agent. Acashi does not quote plans, recommend carriers, or guarantee a subsidy.
+It is **not HealthCare.gov**, **not Covered California**, not a state-based marketplace, and not an FFM/EDE web-broker. Washington consumers enroll on HealthCare.gov. Eligibility, plan selection, and enrollment happen there or with a licensed agent. Acashi does not quote plans, recommend carriers, or guarantee a subsidy.
 
-**Producer path:** Devo gets licensed and uses FFM when plan year 2027 opens. Until then, this portal captures a complete application plus consent and supports JSON/CSV export for HealthSherpa or manual enrollment. FFM enrollment assist waits on PY2027 registration/certification listing (RCL).
+**Producer path:** Founder licensing is **Washington OIC**. Devo uses the existing legal entity; agent name and NPN live on each application (env defaults, editable on the producer desk). FFM assist waits on PY2027 registration/certification listing (RCL). Until then the portal captures a complete application plus consent and supports JSON/CSV export for HealthSherpa or manual enrollment.
 
 Parent brand: Devo. Siblings: Phenomatch, Antiporn, Lessfret, Lightround. Public family: [devoutshaman.com](https://devoutshaman.com). The **o** mark on this site links there.
 
@@ -16,7 +16,8 @@ Publisher identity: **Devo / atla-o**. Public GitHub: [github.com/atla-o/acashi]
 
 | Path | Purpose |
 | --- | --- |
-| `/` | Product copy + consumer application wizard (save progress) |
+| `/` | Product copy + consumer application wizard (Washington default) |
+| `/enrollment` | What enrollment is, APTC at a high level, HealthCare.gov path |
 | `/status` | Status monitor (application id + email) |
 | `/producer/login` | Password or magic-link gate for the producer desk |
 | `/producer` | Pipeline list (new / in progress / ready to submit / submitted / effectuated / closed) |
@@ -35,7 +36,7 @@ Publisher identity: **Devo / atla-o**. Public GitHub: [github.com/atla-o/acashi]
 Six steps, mobile-width, save on each continue:
 
 1. Contact (name, email, phone, preferred contact)
-2. Location (state, ZIP, county)
+2. Location (defaults to Washington; ZIP 98001–99403; Washington county list)
 3. Household (people, ages, relationships, tobacco if 18+)
 4. Income and employment (band or exact amount, work status)
 5. Existing coverage (high level; not a medical or SEP determination)
@@ -57,7 +58,7 @@ Target volume: ~20 applications per month.
 6. Export **JSON** (primary) or **CSV** for HealthSherpa or a manual Marketplace session. The export header states this is not an FFM/EDE submission.
 7. After handoff, mark **submitted**. When coverage starts, **effectuated**. Otherwise **closed** (not a coverage denial).
 
-Do not enroll from this UI. Do not treat ready-to-submit as an exchange determination. When PY2027 RCL is open and Devo is listed, FFM assist can replace the export/handoff step — this app does not implement that yet.
+Do not enroll from this UI. Do not treat ready-to-submit as an exchange determination. There is no Covered California flow. When PY2027 RCL is open and the producer is listed, FFM assist can replace the export/handoff step — this app does not implement that yet.
 
 ## Run locally
 
@@ -147,8 +148,9 @@ Grant the Cloud Run runtime service account `roles/datastore.user` on `devo-hold
 
 ## What the UI includes
 
-- Landing copy that states what Acashi is and is not, including the PY2027 FFM wait
-- A six-step wizard with save progress, loading / error / success, and mobile layout
+- Landing copy that states Washington FFM / HealthCare.gov (not Covered California) and the PY2027 wait
+- Enrollment information: what enrollment is, APTC at a high level, licensed producer, path to HealthCare.gov
+- A six-step wizard defaulting to Washington with county/ZIP for this state
 - Explicit agent-assistance consent (checkbox + stored timestamp + IP)
 - Status monitor for the current pipeline
 - Producer desk: gated list, detail, status changes, NPN/agent name, JSON/CSV export
