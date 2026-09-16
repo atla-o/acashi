@@ -1,0 +1,8 @@
+# Uploaded by `gcloud run deploy --source .` / Cloud Build.
+.git
+.github
+.cursor
+.gcloudignore
+cloudbuild.yaml
+
+#!include:.gitignore
