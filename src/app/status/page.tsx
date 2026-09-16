@@ -17,8 +17,9 @@ export default function StatusPage() {
       </h1>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
         Look up a file with its application id and the email used on the form.
-        After a successful submit, this browser keeps the id. Status is
-        received, in review, needs info, ready for marketplace, or closed.
+        After a successful submit, this browser keeps the id. Status is new, in
+        progress, ready to submit, submitted, effectuated, or closed. This is
+        not HealthCare.gov.
       </p>
       <div className="mt-12">
         <Suspense fallback={<StatusLoading />}>

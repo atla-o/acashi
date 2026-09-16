@@ -1,4 +1,4 @@
-import { ApplicationForm } from "@/components/application-form";
+import { ApplicationWizard } from "@/components/application-wizard";
 import { Separator } from "@/components/ui/separator";
 import {
   parentBrand,
@@ -25,8 +25,9 @@ export default function HomePage() {
             </p>
             <p className="max-w-lg text-sm leading-7 text-muted-foreground">
               Affordable Care Act marketplace coverage can come with a premium
-              tax credit. Acashi takes a short interest form and keeps a status
-              you can look up. It does not sell a plan or complete enrollment.
+              tax credit. Acashi is a producer application portal: complete
+              household data, retainable agent-assistance consent, then handoff.
+              It does not sell a plan or complete enrollment on this site.
             </p>
           </div>
           <aside className="self-end space-y-4 border border-foreground/10 p-6">
@@ -34,8 +35,8 @@ export default function HomePage() {
               In one sentence
             </p>
             <p className="text-sm leading-6">
-              Tell us who you are and roughly what your household looks like.
-              We track the file. You enroll on the official marketplace.
+              Save a complete Marketplace file here. A licensed agent enrolls
+              you on the official exchange. This is not HealthCare.gov.
             </p>
           </aside>
         </div>
@@ -73,12 +74,12 @@ export default function HomePage() {
           Application
         </p>
         <h2 className="font-heading mt-3 text-4xl tracking-tight">
-          Bare-bones marketplace interest
+          Marketplace application
         </h2>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-          Income is approximate. Acashi does not compute a credit or check
-          eligibility. After submit, the status monitor uses your application
-          id and email.
+          Six short steps. Save progress any time. Income is approximate.
+          Acashi does not compute a credit, quote a plan, or enroll you.
+          After submit, the status monitor uses your application id and email.
         </p>
         <Separator className="my-10" />
         <div className="grid gap-12 lg:grid-cols-[minmax(0,22rem)_1fr]">
@@ -90,13 +91,19 @@ export default function HomePage() {
               review.
             </p>
             <p>
-              Status moves received → in review → needs info → ready for
-              marketplace, or closed. Ready means the interest file is complete
-              enough for you to enroll officially. Closed is not a coverage
+              Pipeline: new → in progress → ready to submit → submitted →
+              effectuated, or closed. Ready to submit means a licensed agent
+              can hand the file to HealthSherpa or enroll manually. FFM
+              enrollment assist waits on PY2027 RCL. Closed is not a coverage
               denial.
             </p>
+            <p>
+              Devo is on a path to get licensed and use FFM when plan year 2027
+              opens. Until then this portal captures a complete file and
+              consent. It does not pretend to be the exchange.
+            </p>
           </aside>
-          <ApplicationForm />
+          <ApplicationWizard />
         </div>
       </section>
     </div>

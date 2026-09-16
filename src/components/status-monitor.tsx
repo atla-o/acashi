@@ -238,14 +238,17 @@ function StatusCard({ application }: { application: ApplicationRecord }) {
         </p>
       </div>
 
-      <ol className="grid gap-px bg-foreground/10 sm:grid-cols-5">
+      <ol className="grid gap-px bg-foreground/10 sm:grid-cols-6">
         {applicationStatuses.map((status) => {
           const current = application.status === status;
           const currentIsTerminal =
-            application.status === "ready_for_marketplace" ||
+            application.status === "submitted" ||
+            application.status === "effectuated" ||
             application.status === "closed";
           const statusIsTerminal =
-            status === "ready_for_marketplace" || status === "closed";
+            status === "submitted" ||
+            status === "effectuated" ||
+            status === "closed";
           const currentIndex = applicationStatuses.indexOf(application.status);
           const statusIndex = applicationStatuses.indexOf(status);
           const reached =
@@ -284,30 +287,58 @@ function StatusCard({ application }: { application: ApplicationRecord }) {
         <Row label="Email" value={application.email} />
         <Row
           label="Contact"
-          value={contactMethodLabels[application.preferredContactMethod]}
+          value={
+            application.preferredContactMethod
+              ? contactMethodLabels[application.preferredContactMethod]
+              : "—"
+          }
         />
         <Row
           label="Household"
-          value={`${application.householdSize} · ${application.state} ${application.zip}`}
+          value={`${application.householdSize} · ${application.state} ${application.zip}${application.county ? ` · ${application.county}` : ""}`}
         />
+        {application.householdMembers?.length ? (
+          <Row
+            label="People"
+            value={application.householdMembers
+              .map((member) => {
+                const age = member.age === null ? "age n/a" : `${member.age}`;
+                return `${member.fullName} (${member.relationship}, ${age})`;
+              })
+              .join("; ")}
+          />
+        ) : null}
         <Row
           label="Income band"
-          value={incomeBandLabels[application.incomeBand]}
+          value={
+            application.incomeBand
+              ? incomeBandLabels[application.incomeBand]
+              : "—"
+          }
         />
         {application.annualIncome ? (
           <Row label="Approximate income" value={`$${application.annualIncome}`} />
         ) : null}
+        <Row
+          label="Agent assistance consent"
+          value={
+            application.agentAssistanceConsent
+              ? `Recorded ${application.agentAssistanceConsentAt ? formatSubmittedAt(application.agentAssistanceConsentAt) : ""}`.trim()
+              : "Not recorded"
+          }
+        />
       </dl>
 
       <p className="text-sm leading-7 text-muted-foreground">
-        Ready for marketplace means you should enroll on{" "}
+        Ready to submit or submitted means a licensed agent should enroll on{" "}
         <a
           href="https://www.healthcare.gov"
           className="underline underline-offset-3"
         >
           HealthCare.gov
         </a>{" "}
-        or your state exchange. Acashi does not complete that step.
+        or your state exchange. Acashi does not complete that step here. FFM
+        enrollment assist waits on PY2027 RCL.
       </p>
     </section>
   );

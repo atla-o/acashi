@@ -36,6 +36,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/producer" className="hover:text-background">
+                Producer desk
+              </Link>
+            </li>
+            <li>
               <a
                 href="https://www.healthcare.gov"
                 className="hover:text-background"
