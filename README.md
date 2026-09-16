@@ -115,6 +115,8 @@ The workflow preflight fails clearly if either variable is unset. `id-token: wri
 
 Producer password, magic token, session secret, SSN key, and NPN are **Cloud Run service environment** (or Secret Manager), not GitHub Actions variables. This repo does not deploy those secrets. Set them on `acashi-web` in `devo-holding` when a human is ready.
 
+The GitHub Actions deploy uses `--update-env-vars` for `GCP_PROJECT` / `GOOGLE_CLOUD_PROJECT` so it **merges** those keys and does not wipe the rest of the service env (including `ACASHI_PRODUCER_PASSWORD` and agent NPN). Do not switch that flag back to `--set-env-vars`, which replaces the entire env map.
+
 ## Deploy (Cloud Run)
 
 Push to `main` deploys the Next.js production image to `acashi-web` via [`.github/workflows/deploy-acashi-web.yml`](./.github/workflows/deploy-acashi-web.yml). Agents must not run that deploy unless a human asks.
