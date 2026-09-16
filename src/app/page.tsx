@@ -3,7 +3,6 @@ import { Separator } from "@/components/ui/separator";
 import {
   healthplanfinder,
   homeLicenseRegulator,
-  parentBrand,
   productName,
   tagline,
   whatWeAre,
@@ -14,15 +13,32 @@ import { landscapeNote, planSource, planYear } from "@/lib/plans";
 export default function HomePage() {
   return (
     <div>
-      <section className="border-b border-foreground/10">
-        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-[1.3fr_0.7fr] md:py-24">
-          <div className="space-y-8">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-              {parentBrand} · lateral health
-            </p>
-            <h1 className="font-heading max-w-xl text-5xl leading-[1.05] tracking-tight md:text-7xl">
+      <section className="mx-auto max-w-6xl px-5 py-10 md:py-14">
+        <h1 className="font-heading text-4xl tracking-tight md:text-5xl">
+          Find a health plan
+        </h1>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
+          Washington ZIP or county. Scroll public PY{planYear} medical plans,
+          then save interest. Premiums are landscape list rates, not a
+          personalized APTC quote. Selection is not enrollment. Finish on{" "}
+          <a href={healthplanfinder} className="underline underline-offset-3">
+            Healthplanfinder
+          </a>
+          .
+        </p>
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+          {landscapeNote} {planSource}
+        </p>
+        <Separator className="my-8" />
+        <PlanBrowser />
+      </section>
+
+      <section className="border-y border-foreground/10">
+        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-[1.3fr_0.7fr] md:py-20">
+          <div className="space-y-6">
+            <h2 className="font-heading max-w-xl text-4xl leading-[1.05] tracking-tight md:text-5xl">
               {productName}
-            </h1>
+            </h2>
             <p className="max-w-lg text-lg leading-8 text-muted-foreground">
               {tagline}
             </p>
@@ -31,9 +47,8 @@ export default function HomePage() {
               <a href={healthplanfinder} className="underline underline-offset-3">
                 Healthplanfinder
               </a>
-              , often with a premium tax credit. Browse public PY{planYear}{" "}
-              medical plans, save interest, then apply. A licensed producer
-              assists. Licensing path: {homeLicenseRegulator}.
+              , often with a premium tax credit. A licensed producer assists.
+              Licensing path: {homeLicenseRegulator}.
             </p>
           </div>
           <aside className="self-end space-y-4 border border-foreground/10 p-6">
@@ -49,7 +64,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-b border-foreground/10 bg-muted/30">
+      <section className="bg-muted/30">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-2 md:py-20">
           <div>
             <h2 className="font-heading text-3xl tracking-tight">What this is</h2>
@@ -74,25 +89,6 @@ export default function HomePage() {
             </ul>
           </div>
         </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 py-16 md:py-20">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          Marketplace
-        </p>
-        <h2 className="font-heading mt-3 text-4xl tracking-tight">
-          Browse Washington plans
-        </h2>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-          {landscapeNote} {planSource} Selecting a plan saves interest on your
-          application. It does not enroll you. Finish on{" "}
-          <a href={healthplanfinder} className="underline underline-offset-3">
-            Healthplanfinder
-          </a>
-          .
-        </p>
-        <Separator className="my-10" />
-        <PlanBrowser />
       </section>
     </div>
   );
