@@ -1,0 +1,49 @@
+# Push to main deploys Cloud Run service acashi-web.
+# Org policy blocks allUsers — never pass --allow-unauthenticated.
+# Public access uses invoker IAM disabled (--no-invoker-iam-check).
+name: Deploy acashi-web
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-acashi-web
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: devo-holding
+  REGION: us-west1
+  SERVICE: acashi-web
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy "${SERVICE}" \
+            --source . \
+            --project="${PROJECT_ID}" \
+            --region="${REGION}" \
+            --no-invoker-iam-check \
+            --set-env-vars=GCP_PROJECT=devo-holding,GOOGLE_CLOUD_PROJECT=devo-holding

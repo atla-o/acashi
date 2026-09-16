@@ -1,0 +1,21 @@
+# Optional Cloud Build trigger for acashi-web.
+# Primary path is GitHub Actions on push to main (.github/workflows/deploy-acashi-web.yml).
+# Never use --allow-unauthenticated (org policy blocks allUsers).
+substitutions:
+  _SERVICE: acashi-web
+  _REGION: us-west1
+
+steps:
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --source=.
+      - --project=$PROJECT_ID
+      - --region=${_REGION}
+      - --no-invoker-iam-check
+
+options:
+  logging: CLOUD_LOGGING_ONLY

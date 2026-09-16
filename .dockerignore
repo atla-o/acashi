@@ -1,0 +1,15 @@
+.git
+.github
+.cursor
+.next
+node_modules
+coverage
+*.md
+.env
+.env.*
+npm-debug.log*
+.DS_Store
+*.pem
+.vercel
+*.tsbuildinfo
+next-env.d.ts
