@@ -1,6 +1,10 @@
 # Push to main deploys Cloud Run service acashi-web.
 # Org policy blocks allUsers — never pass --allow-unauthenticated.
 # Public access uses invoker IAM disabled (--no-invoker-iam-check).
+#
+# One-time: Workload Identity Federation from this repo to a deploy SA, then
+# repository variables GCP_WORKLOAD_IDENTITY_PROVIDER and GCP_SERVICE_ACCOUNT.
+# See README.md.
 name: Deploy acashi-web
 
 on:
@@ -29,12 +33,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check Workload Identity config
+        env:
+          WIF_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          WIF_SA: ${{ vars.GCP_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$WIF_PROVIDER" ] || [ -z "$WIF_SA" ]; then
+            echo "Set repository variables GCP_WORKLOAD_IDENTITY_PROVIDER and GCP_SERVICE_ACCOUNT."
+            echo "See README.md (Deploy)."
+            exit 1
+          fi
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           project_id: ${{ env.PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
