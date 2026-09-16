@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   familyUrl,
+  healthplanfinder,
   parentBrand,
   productName,
   publicHost,
@@ -27,6 +28,11 @@ export function SiteFooter() {
           <ul className="space-y-2 text-background/80">
             <li>
               <Link href="/" className="hover:text-background">
+                Marketplace
+              </Link>
+            </li>
+            <li>
+              <Link href="/apply" className="hover:text-background">
                 Apply
               </Link>
             </li>
@@ -36,21 +42,18 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link href="/status" className="hover:text-background">
-                Application status
+              <Link href="/account" className="hover:text-background">
+                Account
               </Link>
             </li>
             <li>
-              <Link href="/producer" className="hover:text-background">
-                Producer desk
+              <Link href="/admin" className="hover:text-background">
+                Admin
               </Link>
             </li>
             <li>
-              <a
-                href="https://www.healthcare.gov"
-                className="hover:text-background"
-              >
-                HealthCare.gov
+              <a href={healthplanfinder} className="hover:text-background">
+                Healthplanfinder
               </a>
             </li>
           </ul>

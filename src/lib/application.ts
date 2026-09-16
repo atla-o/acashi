@@ -1,76 +1,37 @@
+import type { PlanInterest } from "./plans.ts";
+import { sanitizePlanInterest } from "./plans.ts";
+import {
+  decryptSsn,
+  encryptSsn,
+  formatSsn,
+  isValidSsn,
+  normalizeSsn,
+  ssnLast4,
+} from "./ssn.ts";
+import {
+  homeLicenseRegulator,
+  homeLicenseState,
+  isWashingtonCounty,
+  isWashingtonZip,
+  normalizeWashingtonCounty,
+  washingtonCounties,
+} from "./washington.ts";
+
 export const agentAssistanceConsentText =
-  "I authorize a licensed insurance agent or broker to assist me with applying for and enrolling in health coverage through the Health Insurance Marketplace. I understand this agent may collect and use the information in this application to help me complete enrollment on HealthCare.gov, the Federally-Facilitated Marketplace (FFM) used in Washington. This authorization is part of my application record and may be retained as required. I understand that granting this authorization does not complete enrollment, does not determine eligibility or a premium tax credit, and does not guarantee a subsidy or a plan. Washington does not use Covered California or another state-based marketplace.";
+  "I authorize a licensed insurance agent or broker to assist me with applying for and enrolling in health coverage through Washington Healthplanfinder, the state-based Marketplace operated by the Washington Health Benefit Exchange (WAHBE). I understand this agent may collect and use the information in this application — including my Social Security number — to help me complete enrollment on Healthplanfinder (wahealthplanfinder.org). This authorization is part of my application record and may be retained as required. I understand that granting this authorization does not complete enrollment, does not determine eligibility or a premium tax credit, does not bind a plan, and does not guarantee a subsidy. Washington does not use HealthCare.gov as its Marketplace and does not use Covered California.";
 
-export const consentVersion = "2026-09-acashi-wa-ffm";
+export const consentVersion = "2026-09-acashi-wa-hpf";
 
-export const homeLicenseState = "WA" as const;
-export const homeLicenseRegulator =
-  "Washington Office of the Insurance Commissioner (OIC)";
-
-export const washingtonCounties = [
-  "Adams",
-  "Asotin",
-  "Benton",
-  "Chelan",
-  "Clallam",
-  "Clark",
-  "Columbia",
-  "Cowlitz",
-  "Douglas",
-  "Ferry",
-  "Franklin",
-  "Garfield",
-  "Grant",
-  "Grays Harbor",
-  "Island",
-  "Jefferson",
-  "King",
-  "Kitsap",
-  "Kittitas",
-  "Klickitat",
-  "Lewis",
-  "Lincoln",
-  "Mason",
-  "Okanogan",
-  "Pacific",
-  "Pend Oreille",
-  "Pierce",
-  "San Juan",
-  "Skagit",
-  "Skamania",
-  "Snohomish",
-  "Spokane",
-  "Stevens",
-  "Thurston",
-  "Wahkiakum",
-  "Walla Walla",
-  "Whatcom",
-  "Whitman",
-  "Yakima",
-] as const;
-
-export type WashingtonCounty = (typeof washingtonCounties)[number];
-
-export function normalizeWashingtonCounty(value: string) {
-  const stripped = value.replace(/\s+county$/i, "").trim();
-  const match = washingtonCounties.find(
-    (county) => county.toLowerCase() === stripped.toLowerCase()
-  );
-  return match ?? stripped;
-}
-
-export function isWashingtonCounty(value: string): value is WashingtonCounty {
-  return washingtonCounties.some(
-    (county) => county === normalizeWashingtonCounty(value)
-  );
-}
-
-export function isWashingtonZip(value: string) {
-  const five = value.slice(0, 5);
-  if (!/^\d{5}$/.test(five)) return false;
-  const n = Number.parseInt(five, 10);
-  return n >= 98001 && n <= 99403;
-}
+export {
+  homeLicenseRegulator,
+  homeLicenseState,
+  isWashingtonCounty,
+  isWashingtonZip,
+  normalizeWashingtonCounty,
+  washingtonCounties,
+};
+export type { WashingtonCounty } from "./washington.ts";
+export type { PlanInterest } from "./plans.ts";
 
 export const applicationStatuses = [
   "new",
@@ -108,17 +69,17 @@ export const statusLabels: Record<ApplicationStatus, string> = {
 };
 
 export const statusCopy: Record<ApplicationStatus, string> = {
-  new: "Acashi has the completed application. A producer has not started it yet.",
+  new: "Acashi has the completed application. An Admin producer has not started it yet.",
   in_progress:
     "This file is being completed by the applicant or worked by a producer. It is not enrollment.",
   ready_to_submit:
-    "The file is ready for a licensed agent to enroll the household on the official Marketplace. This site does not submit to FFM.",
+    "The file is ready for a licensed producer to help the household enroll on Washington Healthplanfinder. This site does not submit to the Exchange.",
   submitted:
-    "A licensed agent has handed this file off for Marketplace enrollment (HealthSherpa or manual). Confirm on HealthCare.gov (Washington FFM) or with the agent.",
+    "A licensed producer has handed this file off for Healthplanfinder enrollment. Confirm on Healthplanfinder or with the producer. Acashi is not the Exchange.",
   effectuated:
-    "Coverage is marked as started. Confirm official Marketplace or insurer notices — Acashi is not the exchange.",
+    "Coverage is marked as started. Confirm official Healthplanfinder or insurer notices — Acashi is not the Exchange.",
   closed:
-    "This application is closed. That is not a denial of coverage. Enrollment still happens on the official marketplace.",
+    "This application is closed. That is not a denial of coverage. Enrollment still happens on Washington Healthplanfinder.",
 };
 
 export const consumerEditableStatuses: ApplicationStatus[] = [
@@ -217,7 +178,7 @@ export const coverageTypeLabels: Record<CoverageType, string> = {
   employer: "Employer or job-based",
   medicaid: "Medicaid or CHIP",
   medicare: "Medicare",
-  marketplace: "Marketplace / HealthCare.gov",
+  marketplace: "Marketplace / Healthplanfinder",
   other: "Other",
 };
 
@@ -240,8 +201,8 @@ export const tobaccoAnswerLabels: Record<TobaccoAnswer, string> = {
 };
 
 export const wizardSteps = [
-  { id: "contact", label: "Contact" },
-  { id: "location", label: "Location" },
+  { id: "identity", label: "You" },
+  { id: "address", label: "Address" },
   { id: "household", label: "Household" },
   { id: "income", label: "Income" },
   { id: "coverage", label: "Coverage" },
@@ -326,9 +287,13 @@ export type StatusHistoryEntry = {
 
 export type ApplicationDraft = {
   fullName: string;
+  dateOfBirth: string;
+  ssn: string;
   email: string;
   phone: string;
   preferredContactMethod: ContactMethod | "";
+  streetAddress: string;
+  city: string;
   state: UsState | "";
   zip: string;
   county: string;
@@ -342,11 +307,12 @@ export type ApplicationDraft = {
   currentCoverageType: CoverageType | "";
   losingCoverageSoon: YesNoUnsure | "";
   notes: string;
+  selectedPlan: PlanInterest | null;
   acceptedDisclaimer: boolean;
   agentAssistanceConsent: boolean;
 };
 
-export type ApplicationRecord = ApplicationDraft & {
+export type ApplicationRecord = Omit<ApplicationDraft, "ssn"> & {
   id: string;
   status: ApplicationStatus;
   householdSize: number;
@@ -362,17 +328,23 @@ export type ApplicationRecord = ApplicationDraft & {
   producerNotes: string;
   agentName: string;
   agentNpn: string;
+  ssnCiphertext: string;
+  ssnLast4: string;
 };
 
 export type ApplicationFieldErrors = Partial<
-  Record<keyof ApplicationDraft | "householdMembers" | "submit", string>
+  Record<keyof ApplicationDraft | "householdMembers" | "submit" | "ssn", string>
 >;
 
 export const emptyApplicationDraft: ApplicationDraft = {
   fullName: "",
+  dateOfBirth: "",
+  ssn: "",
   email: "",
   phone: "",
   preferredContactMethod: "email",
+  streetAddress: "",
+  city: "",
   state: homeLicenseState,
   zip: "",
   county: "",
@@ -395,6 +367,7 @@ export const emptyApplicationDraft: ApplicationDraft = {
   currentCoverageType: "",
   losingCoverageSoon: "",
   notes: "",
+  selectedPlan: null,
   acceptedDisclaimer: false,
   agentAssistanceConsent: false,
 };
@@ -421,6 +394,8 @@ const MAX_INCOME = 20;
 const MAX_COUNTY = 80;
 const MAX_EMPLOYER = 120;
 const MAX_MEMBERS = 15;
+const MAX_STREET = 120;
+const MAX_CITY = 80;
 
 export function trim(value: unknown, max: number) {
   if (typeof value !== "string") return "";
@@ -429,6 +404,34 @@ export function trim(value: unknown, max: number) {
 
 function isEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isDob(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map((part) => Number.parseInt(part, 10));
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return false;
+  }
+  const today = new Date();
+  const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  if (date.getTime() > todayUtc) return false;
+  const age = Math.floor((todayUtc - date.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+  return age >= 0 && age <= 120;
+}
+
+export function ageFromDob(value: string) {
+  if (!isDob(value)) return null;
+  const [year, month, day] = value.split("-").map((part) => Number.parseInt(part, 10));
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  const monthDiff = today.getMonth() + 1 - month;
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) age -= 1;
+  return age;
 }
 
 function isZip(value: string) {
@@ -609,6 +612,9 @@ export function applicationRecordFromStored(
     fullName: data.fullName,
     email: data.email,
     phone: typeof data.phone === "string" ? data.phone : "",
+    dateOfBirth: typeof data.dateOfBirth === "string" ? data.dateOfBirth : "",
+    streetAddress: typeof data.streetAddress === "string" ? data.streetAddress : "",
+    city: typeof data.city === "string" ? data.city : "",
     preferredContactMethod,
     state:
       typeof data.state === "string"
@@ -654,6 +660,7 @@ export function applicationRecordFromStored(
         ? data.losingCoverageSoon
         : "",
     notes: typeof data.notes === "string" ? data.notes : "",
+    selectedPlan: sanitizePlanInterest(data.selectedPlan),
     acceptedDisclaimer: data.acceptedDisclaimer === true,
     agentAssistanceConsent: data.agentAssistanceConsent === true,
     status,
@@ -676,6 +683,8 @@ export function applicationRecordFromStored(
     producerNotes: typeof data.producerNotes === "string" ? data.producerNotes : "",
     agentName: typeof data.agentName === "string" ? data.agentName : "",
     agentNpn: typeof data.agentNpn === "string" ? data.agentNpn : "",
+    ssnCiphertext: typeof data.ssnCiphertext === "string" ? data.ssnCiphertext : "",
+    ssnLast4: typeof data.ssnLast4 === "string" ? data.ssnLast4.slice(0, 4) : "",
   };
 }
 
@@ -710,11 +719,15 @@ export function sanitizeApplicationDraft(input: unknown): ApplicationDraft {
 
   return {
     fullName: trim(body.fullName, MAX_NAME),
+    dateOfBirth: trim(body.dateOfBirth, 10),
+    ssn: normalizeSsn(body.ssn),
     email: trim(body.email, MAX_EMAIL).toLowerCase(),
     phone: trim(body.phone, MAX_PHONE),
     preferredContactMethod: isContactMethod(body.preferredContactMethod)
       ? body.preferredContactMethod
       : "",
+    streetAddress: trim(body.streetAddress, MAX_STREET),
+    city: trim(body.city, MAX_CITY),
     state,
     zip: trim(body.zip, 10),
     county,
@@ -738,6 +751,7 @@ export function sanitizeApplicationDraft(input: unknown): ApplicationDraft {
       ? body.losingCoverageSoon
       : "",
     notes: trim(body.notes, MAX_NOTES),
+    selectedPlan: sanitizePlanInterest(body.selectedPlan),
     acceptedDisclaimer: body.acceptedDisclaimer === true,
     agentAssistanceConsent: body.agentAssistanceConsent === true,
   };
@@ -761,7 +775,13 @@ function addFormatErrors(
     !isWashingtonZip(draft.zip)
   ) {
     errors.zip =
-      "Washington ZIPs are 98001–99403. This portal is FFM / HealthCare.gov, not Covered California.";
+      "Washington ZIPs are 98001–99403. This portal is for Healthplanfinder, not HealthCare.gov or Covered California.";
+  }
+  if (draft.dateOfBirth && !isDob(draft.dateOfBirth)) {
+    errors.dateOfBirth = "Use a real date of birth (YYYY-MM-DD).";
+  }
+  if (draft.ssn && !isValidSsn(draft.ssn)) {
+    errors.ssn = "Enter a 9-digit Social Security number.";
   }
   if (draft.annualIncome && !/^\d+(\.\d{1,2})?$/.test(draft.annualIncome)) {
     errors.annualIncome = "Use a number, or leave this blank and pick a band.";
@@ -770,13 +790,18 @@ function addFormatErrors(
 
 export function validateWizardStep(
   step: WizardStepId,
-  draft: ApplicationDraft
+  draft: ApplicationDraft,
+  options: { ssnOnFile?: boolean } = {}
 ): ApplicationFieldErrors {
   const errors: ApplicationFieldErrors = {};
 
-  if (step === "contact") {
+  if (step === "identity") {
     if (!draft.fullName) errors.fullName = "Enter your full name.";
     else if (draft.fullName.length < 2) errors.fullName = "Name is too short.";
+    if (!draft.dateOfBirth) errors.dateOfBirth = "Enter your date of birth.";
+    if (!draft.ssn && !options.ssnOnFile) {
+      errors.ssn = "Enter your Social Security number.";
+    }
     if (!draft.email) errors.email = "Enter an email address.";
     if (!draft.phone) errors.phone = "Enter a phone number.";
     if (!isContactMethod(draft.preferredContactMethod)) {
@@ -784,18 +809,17 @@ export function validateWizardStep(
     }
   }
 
-  if (step === "location") {
+  if (step === "address") {
+    if (!draft.streetAddress) errors.streetAddress = "Enter a street address.";
+    if (!draft.city) errors.city = "Enter a city.";
     if (!isState(draft.state)) errors.state = "Choose a state.";
+    else if (draft.state !== homeLicenseState) {
+      errors.state = "Acashi is for Washington Healthplanfinder applications.";
+    }
     if (!draft.zip) errors.zip = "Enter a ZIP code.";
     if (!draft.county) {
-      errors.county =
-        draft.state === homeLicenseState
-          ? "Choose a Washington county."
-          : "Enter a county.";
-    } else if (
-      draft.state === homeLicenseState &&
-      !isWashingtonCounty(draft.county)
-    ) {
+      errors.county = "Choose a Washington county.";
+    } else if (!isWashingtonCounty(draft.county)) {
       errors.county = "Choose a Washington county.";
     }
   }
@@ -849,7 +873,7 @@ export function validateWizardStep(
   if (step === "consent") {
     if (!draft.acceptedDisclaimer) {
       errors.acceptedDisclaimer =
-        "Confirm that Acashi is not HealthCare.gov and does not enroll you here.";
+        "Confirm that Acashi is not Healthplanfinder and does not enroll you here.";
     }
     if (!draft.agentAssistanceConsent) {
       errors.agentAssistanceConsent =
@@ -863,7 +887,8 @@ export function validateWizardStep(
 
 export function validateApplicationDraft(
   draft: ApplicationDraft,
-  mode: "partial" | "complete"
+  mode: "partial" | "complete",
+  options: { ssnOnFile?: boolean } = {}
 ): ApplicationFieldErrors {
   if (mode === "partial") {
     const errors: ApplicationFieldErrors = {};
@@ -875,22 +900,27 @@ export function validateApplicationDraft(
   }
 
   return wizardSteps.reduce<ApplicationFieldErrors>((errors, step) => {
-    return { ...errors, ...validateWizardStep(step.id, draft) };
+    return { ...errors, ...validateWizardStep(step.id, draft, options) };
   }, {});
 }
 
 export function parseApplicationDraft(
   input: unknown,
-  mode: "partial" | "complete" = "complete"
+  mode: "partial" | "complete" = "complete",
+  options: { ssnOnFile?: boolean } = {}
 ):
   | { ok: true; draft: ApplicationDraft }
   | { ok: false; errors: ApplicationFieldErrors } {
   const draft = sanitizeApplicationDraft(input);
-  const errors = validateApplicationDraft(draft, mode);
+  const errors = validateApplicationDraft(draft, mode, options);
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors };
   }
   return { ok: true, draft };
+}
+
+export function persistableDraft(draft: ApplicationDraft): ApplicationDraft {
+  return { ...draft, ssn: "" };
 }
 
 export function isApplicationId(value: string) {
@@ -957,9 +987,12 @@ export function publicApplication(record: ApplicationRecord) {
   return {
     id: record.id,
     fullName: record.fullName,
+    dateOfBirth: record.dateOfBirth,
     email: record.email,
     phone: record.phone,
     preferredContactMethod: record.preferredContactMethod,
+    streetAddress: record.streetAddress,
+    city: record.city,
     state: record.state,
     zip: record.zip,
     county: record.county,
@@ -974,6 +1007,7 @@ export function publicApplication(record: ApplicationRecord) {
     currentCoverageType: record.currentCoverageType,
     losingCoverageSoon: record.losingCoverageSoon,
     notes: record.notes,
+    selectedPlan: record.selectedPlan,
     acceptedDisclaimer: record.acceptedDisclaimer,
     agentAssistanceConsent: record.agentAssistanceConsent,
     agentAssistanceConsentAt: record.agentAssistanceConsentAt,
@@ -983,10 +1017,13 @@ export function publicApplication(record: ApplicationRecord) {
     submittedAt: record.submittedAt,
     updatedAt: record.updatedAt,
     completedAt: record.completedAt,
+    ssnMasked: record.ssnLast4 ? `•••-••-${record.ssnLast4}` : "",
+    ssnOnFile: Boolean(record.ssnLast4 || record.ssnCiphertext),
   };
 }
 
 export function producerApplication(record: ApplicationRecord) {
+  const ssn = record.ssnCiphertext ? decryptSsn(record.ssnCiphertext) : null;
   return {
     ...publicApplication(record),
     statusHistory: record.statusHistory,
@@ -995,15 +1032,40 @@ export function producerApplication(record: ApplicationRecord) {
     producerNotes: record.producerNotes,
     agentName: record.agentName,
     agentNpn: record.agentNpn,
+    ssn: ssn ? formatSsn(ssn) : "",
+    ssnLast4: record.ssnLast4,
+  };
+}
+
+/** Pipeline list for Admin: no SSN plaintext, last4, or ciphertext. */
+export function pipelineApplication(record: ApplicationRecord) {
+  const view = publicApplication(record);
+  return {
+    id: view.id,
+    fullName: view.fullName,
+    email: view.email,
+    state: view.state,
+    zip: view.zip,
+    county: view.county,
+    status: view.status,
+    updatedAt: view.updatedAt,
+    agentAssistanceConsent: view.agentAssistanceConsent,
+    selectedPlan: view.selectedPlan,
+    agentName: record.agentName,
+    agentNpn: record.agentNpn,
   };
 }
 
 export function draftFromRecord(record: ApplicationRecord): ApplicationDraft {
   return {
     fullName: record.fullName,
+    dateOfBirth: record.dateOfBirth,
+    ssn: "",
     email: record.email,
     phone: record.phone,
     preferredContactMethod: record.preferredContactMethod,
+    streetAddress: record.streetAddress,
+    city: record.city,
     state: record.state,
     zip: record.zip,
     county: record.county,
@@ -1017,8 +1079,18 @@ export function draftFromRecord(record: ApplicationRecord): ApplicationDraft {
     currentCoverageType: record.currentCoverageType,
     losingCoverageSoon: record.losingCoverageSoon,
     notes: record.notes,
+    selectedPlan: record.selectedPlan,
     acceptedDisclaimer: record.acceptedDisclaimer,
     agentAssistanceConsent: record.agentAssistanceConsent,
+  };
+}
+
+function applySsn(record: ApplicationRecord, draft: ApplicationDraft): ApplicationRecord {
+  if (!draft.ssn) return record;
+  return {
+    ...record,
+    ssnCiphertext: encryptSsn(draft.ssn),
+    ssnLast4: ssnLast4(draft.ssn),
   };
 }
 
@@ -1031,9 +1103,11 @@ export function createApplicationRecord(input: {
   agentName: string;
   agentNpn: string;
 }): ApplicationRecord {
+  const { ssn: _ssn, ...rest } = input.draft;
+  void _ssn;
   const status: ApplicationStatus = input.submit ? "new" : "in_progress";
   let record: ApplicationRecord = {
-    ...input.draft,
+    ...rest,
     id: input.id,
     status,
     householdSize: householdSizeOf(input.draft),
@@ -1058,7 +1132,10 @@ export function createApplicationRecord(input: {
     producerNotes: "",
     agentName: input.agentName,
     agentNpn: input.agentNpn,
+    ssnCiphertext: "",
+    ssnLast4: "",
   };
+  record = applySsn(record, input.draft);
   if (input.submit) {
     record = applyConsentAudit(record, input.draft, input.ip, input.now);
   }
@@ -1077,7 +1154,10 @@ export function reduceApplicationSave(input: {
   | { ok: true; record: ApplicationRecord }
   | { ok: false; error: string; status: number; errors?: ApplicationFieldErrors } {
   const mode = input.submit ? "complete" : "partial";
-  const errors = validateApplicationDraft(input.draft, mode);
+  const ssnOnFile = Boolean(
+    input.existing?.ssnLast4 || input.existing?.ssnCiphertext
+  );
+  const errors = validateApplicationDraft(input.draft, mode, { ssnOnFile });
   if (Object.keys(errors).length > 0) {
     return {
       ok: false,
@@ -1113,14 +1193,20 @@ export function reduceApplicationSave(input: {
     };
   }
 
+  const { ssn: _ssn, ...draftRest } = input.draft;
+  void _ssn;
+
   let record: ApplicationRecord = {
     ...input.existing,
-    ...input.draft,
+    ...draftRest,
     householdSize: householdSizeOf(input.draft),
     updatedAt: input.now,
     agentName: input.existing.agentName || input.agentName,
     agentNpn: input.existing.agentNpn || input.agentNpn,
+    ssnCiphertext: input.existing.ssnCiphertext,
+    ssnLast4: input.existing.ssnLast4,
   };
+  record = applySsn(record, input.draft);
 
   if (input.submit) {
     record = applyConsentAudit(record, input.draft, input.ip, input.now);
@@ -1200,8 +1286,8 @@ export function applicationToExportPayload(record: ApplicationRecord) {
   return {
     exportedAt: new Date().toISOString(),
     purpose:
-      "Handoff for HealthSherpa or manual Marketplace enrollment on HealthCare.gov (Washington FFM). Not an FFM/EDE submission. Not Covered California. Acashi is not HealthCare.gov.",
-    ffmAssist: "Waits on PY2027 registration/certification listing (RCL).",
+      "Handoff for a licensed producer to assist enrollment on Washington Healthplanfinder (WAHBE). Not an EDE/web-broker submission. Not HealthCare.gov. Acashi is not the official Exchange. Plan selection on this file is interest only.",
+    marketplace: "Washington Healthplanfinder",
     producer: {
       agentName: record.agentName,
       agentNpn: record.agentNpn,
@@ -1239,9 +1325,13 @@ export function applicationToCsv(record: ApplicationRecord) {
     ["updatedAt", record.updatedAt],
     ["completedAt", record.completedAt ?? ""],
     ["fullName", record.fullName],
+    ["dateOfBirth", record.dateOfBirth],
+    ["ssn", decryptSsn(record.ssnCiphertext) ?? ""],
     ["email", record.email],
     ["phone", record.phone],
     ["preferredContactMethod", record.preferredContactMethod],
+    ["streetAddress", record.streetAddress],
+    ["city", record.city],
     ["state", record.state],
     ["zip", record.zip],
     ["county", record.county],
@@ -1256,6 +1346,12 @@ export function applicationToCsv(record: ApplicationRecord) {
     ["currentCoverageType", record.currentCoverageType],
     ["losingCoverageSoon", record.losingCoverageSoon],
     ["notes", record.notes],
+    [
+      "selectedPlan",
+      record.selectedPlan
+        ? `${record.selectedPlan.issuer} ${record.selectedPlan.name} (${record.selectedPlan.id})`
+        : "",
+    ],
     ["producerNotes", record.producerNotes],
     ["agentName", record.agentName],
     ["agentNpn", record.agentNpn],

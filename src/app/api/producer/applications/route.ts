@@ -18,7 +18,7 @@ async function requireProducer() {
 export async function GET(request: Request) {
   if (!(await requireProducer())) {
     return NextResponse.json(
-      { ok: false, error: "Producer sign-in required." },
+      { ok: false, error: "Admin sign-in required." },
       { status: 401 }
     );
   }

@@ -7,16 +7,18 @@ import { Button } from "@/components/ui/button";
 import {
   applicationStatuses,
   formatSubmittedAt,
+  pipelineApplication,
   statusLabels,
-  type ApplicationRecord,
   type ApplicationStatus,
 } from "@/lib/application";
 import { cn } from "@/lib/utils";
 
+type PipelineRow = ReturnType<typeof pipelineApplication>;
+
 export function ProducerPipeline({
   applications,
 }: {
-  applications: ApplicationRecord[];
+  applications: PipelineRow[];
 }) {
   const router = useRouter();
   const [filter, setFilter] = useState<ApplicationStatus | "all">("all");
@@ -40,7 +42,7 @@ export function ProducerPipeline({
   async function signOut() {
     setSigningOut(true);
     await fetch("/api/producer/logout", { method: "POST" });
-    router.replace("/producer/login");
+    router.replace("/admin/login");
     router.refresh();
   }
 
@@ -75,8 +77,8 @@ export function ProducerPipeline({
 
       {applications.length === 0 ? (
         <p className="text-sm leading-7 text-muted-foreground">
-          No applications yet. When a consumer saves or submits the wizard, the
-          file lands here.
+          No applications yet. When a consumer saves or submits an application,
+          the file lands here.
         </p>
       ) : null}
 
@@ -93,6 +95,7 @@ export function ProducerPipeline({
               <tr>
                 <th className="px-4 py-3 font-medium">Applicant</th>
                 <th className="px-4 py-3 font-medium">Where</th>
+                <th className="px-4 py-3 font-medium">Plan interest</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Writer</th>
                 <th className="px-4 py-3 font-medium">Consent</th>
@@ -103,13 +106,18 @@ export function ProducerPipeline({
               {rows.map((row) => (
                 <tr key={row.id} className="border-b border-foreground/8 last:border-0">
                   <td className="px-4 py-3">
-                    <Link href={`/producer/${row.id}`} className="underline-offset-3 hover:underline">
+                    <Link href={`/admin/${row.id}`} className="underline-offset-3 hover:underline">
                       {row.fullName || "Unnamed"}
                     </Link>
                     <p className="text-xs text-muted-foreground">{row.email || "—"}</p>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {row.state || "—"} {row.zip}
+                    {row.county || row.state || "—"} {row.zip}
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {row.selectedPlan
+                      ? `${row.selectedPlan.metal} · ${row.selectedPlan.issuer}`
+                      : "—"}
                   </td>
                   <td className="px-4 py-3">{statusLabels[row.status]}</td>
                   <td className="px-4 py-3 text-muted-foreground">

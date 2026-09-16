@@ -13,6 +13,8 @@ import {
   isWashingtonZip,
   normalizeApplicationStatus,
   parseApplicationDraft,
+  persistableDraft,
+  pipelineApplication,
   producerApplication,
   publicApplication,
   reduceApplicationSave,
@@ -32,9 +34,13 @@ const member = {
 
 const valid = {
   fullName: "Ada Lovelace",
+  dateOfBirth: "1989-12-10",
+  ssn: "536-90-1111",
   email: "ada@example.com",
   phone: "206-555-0100",
   preferredContactMethod: "email",
+  streetAddress: "100 Yesler Way",
+  city: "Seattle",
   state: "WA",
   zip: "98101",
   county: "King",
@@ -61,6 +67,9 @@ test("accepts a complete application", () => {
   assert.equal(parsed.draft.zip, "98101");
   assert.equal(parsed.draft.county, "King");
   assert.equal(parsed.draft.state, "WA");
+  assert.equal(parsed.draft.dateOfBirth, "1989-12-10");
+  assert.equal(parsed.draft.ssn, "536901111");
+  assert.equal(parsed.draft.streetAddress, "100 Yesler Way");
   assert.equal(parsed.draft.agentAssistanceConsent, true);
 });
 
@@ -73,7 +82,7 @@ test("lowercases email and requires disclaimer plus agent consent", () => {
   });
   assert.equal(parsed.ok, false);
   if (parsed.ok) return;
-  assert.match(parsed.errors.acceptedDisclaimer ?? "", /HealthCare\.gov/);
+  assert.match(parsed.errors.acceptedDisclaimer ?? "", /Healthplanfinder/);
   assert.match(parsed.errors.agentAssistanceConsent ?? "", /consent/);
 });
 
@@ -123,17 +132,17 @@ test("rejects a California ZIP when state is Washington", () => {
   assert.match(parsed.errors.zip ?? "", /98001/);
 });
 
-test("does not add a Covered California flow for CA files", () => {
+test("does not accept a Covered California / out-of-state complete file", () => {
   const parsed = parseApplicationDraft({
     ...valid,
     state: "CA",
     zip: "94107",
     county: "San Francisco",
   });
-  assert.equal(parsed.ok, true);
-  if (!parsed.ok) return;
-  assert.equal(parsed.draft.state, "CA");
-  assert.match(agentAssistanceConsentText, /HealthCare\.gov/);
+  assert.equal(parsed.ok, false);
+  if (parsed.ok) return;
+  assert.match(parsed.errors.state ?? "", /Washington Healthplanfinder/);
+  assert.match(agentAssistanceConsentText, /Healthplanfinder/);
   assert.match(agentAssistanceConsentText, /Covered California/);
 });
 
@@ -149,12 +158,14 @@ test("partial save requires a valid email only", () => {
   assert.ok(missing.errors.email);
 });
 
-test("wizard contact step requires name, email, phone, and contact method", () => {
+test("wizard identity step requires name, date of birth, SSN, email, and phone", () => {
   const parsed = parseApplicationDraft({ email: "ada@example.com" }, "partial");
   assert.equal(parsed.ok, true);
   if (!parsed.ok) return;
-  const errors = validateWizardStep("contact", parsed.draft);
+  const errors = validateWizardStep("identity", parsed.draft);
   assert.ok(errors.fullName);
+  assert.ok(errors.dateOfBirth);
+  assert.ok(errors.ssn);
   assert.ok(errors.phone);
 });
 
@@ -254,18 +265,18 @@ test("producer status change writes history and export includes NPN", () => {
   const patched = reduceProducerPatch({
     existing: created.record,
     status: "ready_to_submit",
-    statusNote: "Ready for HealthSherpa.",
+    statusNote: "Ready for Healthplanfinder.",
     now: "2026-09-16T14:00:00.000Z",
   });
   assert.equal(patched.ok, true);
   if (!patched.ok) return;
   assert.equal(patched.record.status, "ready_to_submit");
-  assert.match(patched.record.statusHistory.at(-1)?.note ?? "", /HealthSherpa/);
+  assert.match(patched.record.statusHistory.at(-1)?.note ?? "", /Healthplanfinder/);
 
   const payload = applicationToExportPayload(patched.record);
   assert.equal(payload.producer.agentNpn, "999");
-  assert.match(payload.purpose, /HealthSherpa/);
-  assert.match(payload.ffmAssist, /PY2027/);
+  assert.match(payload.purpose, /Healthplanfinder/);
+  assert.equal("ffmAssist" in payload, false);
 
   const csv = applicationToCsv(patched.record);
   assert.match(csv, /ready_to_submit/);
@@ -332,7 +343,7 @@ test("full wizard record round-trips through stored shape with writing NPN", () 
   const parsed = parseApplicationDraft({
     ...valid,
     householdMembers: [member, spouse],
-    notes: "WA FFM file for producer handoff.",
+    notes: "WA Healthplanfinder file for producer handoff.",
   });
   assert.equal(parsed.ok, true);
   if (!parsed.ok) return;
@@ -356,7 +367,12 @@ test("full wizard record round-trips through stored shape with writing NPN", () 
   assert.equal(created.record.annualIncome, "62000");
   assert.equal(created.record.employmentStatus, "employed");
   assert.equal(created.record.employerName, "Analytical Engines");
-  assert.equal(created.record.consentVersion, "2026-09-acashi-wa-ffm");
+  assert.equal(created.record.dateOfBirth, "1989-12-10");
+  assert.equal(created.record.streetAddress, "100 Yesler Way");
+  assert.equal(created.record.ssnLast4, "1111");
+  assert.ok(created.record.ssnCiphertext.startsWith("v1."));
+  assert.equal("ssn" in created.record, false);
+  assert.equal(created.record.consentVersion, "2026-09-acashi-wa-hpf");
   assert.equal(created.record.agentAssistanceConsentIp, "203.0.113.40");
 
   const assigned = reduceProducerPatch({
@@ -406,12 +422,53 @@ test("full wizard record round-trips through stored shape with writing NPN", () 
 
   const publicView = publicApplication(revived);
   assert.equal("agentNpn" in publicView, false);
+  assert.equal("ssn" in publicView, false);
+  assert.equal("ssnCiphertext" in publicView, false);
+  assert.equal(publicView.ssnMasked, "•••-••-1111");
   const producerView = producerApplication(revived);
   assert.equal(producerView.agentNpn, "12345678");
   assert.equal(producerView.agentName, "Licensed Writer");
+  assert.equal(producerView.ssn, "536-90-1111");
+  const pipelineView = pipelineApplication(revived);
+  assert.equal("ssn" in pipelineView, false);
+  assert.equal("ssnMasked" in pipelineView, false);
+  assert.equal("ssnCiphertext" in pipelineView, false);
+  assert.equal("ssnLast4" in pipelineView, false);
 
   const payload = applicationToExportPayload(revived);
   assert.equal(payload.producer.agentNpn, "12345678");
-  assert.match(payload.purpose, /Washington FFM/);
+  assert.match(payload.purpose, /Healthplanfinder/);
+});
+
+test("attaches a real WA PUF plan of interest and never keeps SSN on persistable drafts", () => {
+  const parsed = parseApplicationDraft({
+    ...valid,
+    selectedPlan: { id: "61836WA0050036", county: "King", zip: "98101" },
+  });
+  assert.equal(parsed.ok, true);
+  if (!parsed.ok) return;
+  assert.equal(parsed.draft.selectedPlan?.id, "61836WA0050036");
+  assert.equal(parsed.draft.selectedPlan?.issuer, "Ambetter");
+  assert.equal(parsed.draft.selectedPlan?.county, "King");
+  assert.equal(parsed.draft.selectedPlan?.zip, "98101");
+  assert.equal(typeof parsed.draft.selectedPlan?.premium, "number");
+
+  const created = reduceApplicationSave({
+    existing: null,
+    draft: parsed.draft,
+    submit: true,
+    ip: "203.0.113.9",
+    now: "2026-09-16T12:00:00.000Z",
+    agentName: "Devo",
+    agentNpn: "",
+  });
+  assert.equal(created.ok, true);
+  if (!created.ok) return;
+  assert.equal(created.record.selectedPlan?.id, "61836WA0050036");
+  assert.equal(created.record.selectedPlan?.name.includes("Ambetter") || created.record.selectedPlan?.issuer === "Ambetter", true);
+
+  const persistable = persistableDraft(parsed.draft);
+  assert.equal(persistable.ssn, "");
+  assert.equal(parsed.draft.ssn, "536901111");
 });
 

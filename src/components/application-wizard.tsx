@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Field, areaClass, fieldClass } from "@/components/field";
 import { ScopeNotice, StatusHint } from "@/components/form-notice";
 import { Button } from "@/components/ui/button";
@@ -18,11 +19,10 @@ import {
   incomeBands,
   isWashingtonCounty,
   newHouseholdMember,
-  parseApplicationDraft,
+  persistableDraft,
   publicApplication,
   relationshipLabels,
   relationships,
-  usStates,
   validateWizardStep,
   washingtonCounties,
   wizardSteps,
@@ -30,15 +30,14 @@ import {
   yesNoUnsureLabels,
   type ApplicationDraft,
   type ApplicationFieldErrors,
-  type ApplicationRecord,
   type ContactMethod,
   type CoverageType,
   type EmploymentStatus,
   type HouseholdMember,
   type IncomeBand,
+  type PlanInterest,
   type Relationship,
   type TobaccoAnswer,
-  type UsState,
   type WizardStepId,
   type YesNoUnsure,
 } from "@/lib/application";
@@ -46,13 +45,16 @@ import {
   agentAssistanceConsentText,
   portalDisclaimer,
 } from "@/lib/legal";
+import { countyForZip, formatUsd, planById, toPlanInterest } from "@/lib/plans";
 import {
   APPLICATION_DRAFT_STORAGE_KEY,
   APPLICATION_STORAGE_KEY,
+  SELECTED_PLAN_STORAGE_KEY,
 } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 type Lookup = { id: string; email: string };
+type PublicApplication = ReturnType<typeof publicApplication>;
 
 function readLookup(): Lookup | null {
   if (typeof window === "undefined") return null;
@@ -81,29 +83,54 @@ function readLocalDraft(): { step: WizardStepId; fields: ApplicationDraft } | nu
     const step =
       wizardSteps.some((item) => item.id === parsed.step) && parsed.step
         ? parsed.step
-        : "contact";
-    return { step, fields: { ...emptyApplicationDraft, ...parsed.fields } };
+        : "identity";
+    return {
+      step,
+      fields: { ...emptyApplicationDraft, ...parsed.fields, ssn: "" },
+    };
   } catch {
     return null;
   }
 }
 
-function persistLocal(step: WizardStepId, fields: ApplicationDraft, lookup?: Lookup | null) {
+function readSelectedPlan(): PlanInterest | null {
+  try {
+    const raw = window.localStorage.getItem(SELECTED_PLAN_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as PlanInterest;
+  } catch {
+    return null;
+  }
+}
+
+function persistLocal(
+  step: WizardStepId,
+  fields: ApplicationDraft,
+  lookup?: Lookup | null
+) {
   window.localStorage.setItem(
     APPLICATION_DRAFT_STORAGE_KEY,
-    JSON.stringify({ step, fields, savedAt: new Date().toISOString() })
+    JSON.stringify({
+      step,
+      fields: persistableDraft(fields),
+      savedAt: new Date().toISOString(),
+    })
   );
   if (lookup) {
     window.localStorage.setItem(APPLICATION_STORAGE_KEY, JSON.stringify(lookup));
   }
 }
 
-function draftFromPublic(application: ReturnType<typeof publicApplication>): ApplicationDraft {
+function draftFromPublic(application: PublicApplication): ApplicationDraft {
   return {
     fullName: application.fullName,
+    dateOfBirth: application.dateOfBirth,
+    ssn: "",
     email: application.email,
     phone: application.phone,
     preferredContactMethod: application.preferredContactMethod,
+    streetAddress: application.streetAddress,
+    city: application.city,
     state: application.state,
     zip: application.zip,
     county: application.county,
@@ -117,6 +144,7 @@ function draftFromPublic(application: ReturnType<typeof publicApplication>): App
     currentCoverageType: application.currentCoverageType,
     losingCoverageSoon: application.losingCoverageSoon,
     notes: application.notes,
+    selectedPlan: application.selectedPlan,
     acceptedDisclaimer: application.acceptedDisclaimer,
     agentAssistanceConsent: application.agentAssistanceConsent,
   };
@@ -124,14 +152,17 @@ function draftFromPublic(application: ReturnType<typeof publicApplication>): App
 
 export function ApplicationWizard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [stepIndex, setStepIndex] = useState(0);
   const [fields, setFields] = useState<ApplicationDraft>(emptyApplicationDraft);
   const [applicationId, setApplicationId] = useState<string | null>(null);
+  const [ssnOnFile, setSsnOnFile] = useState(false);
+  const [ssnMasked, setSsnMasked] = useState("");
   const [errors, setErrors] = useState<ApplicationFieldErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [hydrated, setHydrated] = useState(true);
+  const [hydrated, setHydrated] = useState(false);
 
   const step = wizardSteps[stepIndex] ?? wizardSteps[0];
 
@@ -141,6 +172,10 @@ export function ApplicationWizard() {
       try {
         const lookup = readLookup();
         const local = readLocalDraft();
+        const storedPlan = readSelectedPlan();
+        const queryPlan = planById(searchParams.get("plan") ?? "");
+        const queryCounty = searchParams.get("county") ?? "";
+        const queryZip = searchParams.get("zip") ?? "";
         if (lookup) {
           try {
             const params = new URLSearchParams(lookup);
@@ -148,12 +183,27 @@ export function ApplicationWizard() {
               cache: "no-store",
             });
             const payload = (await response.json().catch(() => null)) as
-              | { ok: true; application: ReturnType<typeof publicApplication> }
+              | { ok: true; application: PublicApplication }
               | { ok: false }
               | null;
             if (!cancelled && payload && payload.ok) {
               setApplicationId(payload.application.id);
-              setFields(draftFromPublic(payload.application));
+              const next = draftFromPublic(payload.application);
+              const interest = queryPlan
+                ? toPlanInterest({
+                    plan: queryPlan,
+                    county: queryCounty || next.county,
+                    zip: queryZip || next.zip,
+                  })
+                : storedPlan || next.selectedPlan;
+              if (interest) {
+                next.selectedPlan = interest;
+                if (!next.zip && interest.zip) next.zip = interest.zip;
+                if (!next.county && interest.county) next.county = interest.county;
+              }
+              setFields(next);
+              setSsnOnFile(payload.application.ssnOnFile);
+              setSsnMasked(payload.application.ssnMasked);
               if (local?.step) {
                 const index = wizardSteps.findIndex((item) => item.id === local.step);
                 if (index >= 0) setStepIndex(index);
@@ -164,16 +214,41 @@ export function ApplicationWizard() {
             /* use local */
           }
         }
-        if (!cancelled && local) {
-          setFields({
-            ...local.fields,
+        if (!cancelled) {
+          const next = {
+            ...emptyApplicationDraft,
+            ...(local?.fields ?? {}),
+            ssn: "",
             householdMembers:
-              local.fields.householdMembers.length > 0
+              local?.fields.householdMembers && local.fields.householdMembers.length > 0
                 ? local.fields.householdMembers
                 : [newHouseholdMember("self")],
-          });
-          const index = wizardSteps.findIndex((item) => item.id === local.step);
-          if (index >= 0) setStepIndex(index);
+          };
+          const interest = queryPlan
+            ? toPlanInterest({
+                plan: queryPlan,
+                county: queryCounty || next.county,
+                zip: queryZip || next.zip,
+              })
+            : storedPlan || next.selectedPlan;
+          if (interest) {
+            next.selectedPlan = interest;
+            if (!next.zip) next.zip = interest.zip;
+            if (!next.county) next.county = interest.county;
+            if (!next.city && interest.zip) {
+              /* city filled on address step */
+            }
+          }
+          if (queryZip && !next.zip) next.zip = queryZip;
+          if (queryCounty && !next.county) next.county = queryCounty;
+          if (next.zip && !next.county) {
+            next.county = countyForZip(next.zip) ?? next.county;
+          }
+          setFields(next);
+          if (local?.step) {
+            const index = wizardSteps.findIndex((item) => item.id === local.step);
+            if (index >= 0) setStepIndex(index);
+          }
           if (lookup) setApplicationId(lookup.id);
         }
       } finally {
@@ -184,7 +259,7 @@ export function ApplicationWizard() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [searchParams]);
 
   function update<K extends keyof ApplicationDraft>(key: K, value: ApplicationDraft[K]) {
     setFields((current) => {
@@ -198,12 +273,19 @@ export function ApplicationWizard() {
           return member;
         });
       }
-      persistLocal(step.id, next, applicationId ? { id: applicationId, email: next.email } : null);
+      if (key === "zip" && typeof value === "string") {
+        const mapped = countyForZip(value);
+        if (mapped) next.county = mapped;
+      }
+      persistLocal(step.id, next, applicationId && current.email ? { id: applicationId, email: current.email } : readLookup());
       return next;
     });
-    setErrors((current) => ({ ...current, [key]: undefined }));
-    setSaveError(null);
-    setSaveNotice(null);
+    setErrors((current) => {
+      if (!(key in current)) return current;
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
   }
 
   function updateMember(id: string, patch: Partial<HouseholdMember>) {
@@ -214,21 +296,18 @@ export function ApplicationWizard() {
           member.id === id ? { ...member, ...patch } : member
         ),
       };
-      persistLocal(step.id, next, applicationId ? { id: applicationId, email: next.email } : null);
+      persistLocal(step.id, next, applicationId ? { id: applicationId, email: current.email } : null);
       return next;
     });
-    setErrors((current) => ({ ...current, householdMembers: undefined }));
-    setSaveError(null);
   }
 
   function addMember() {
     setFields((current) => {
-      if (current.householdMembers.length >= 15) return current;
       const next = {
         ...current,
         householdMembers: [...current.householdMembers, newHouseholdMember("child")],
       };
-      persistLocal(step.id, next, applicationId ? { id: applicationId, email: next.email } : null);
+      persistLocal(step.id, next);
       return next;
     });
   }
@@ -240,75 +319,76 @@ export function ApplicationWizard() {
         ...current,
         householdMembers: current.householdMembers.filter((member) => member.id !== id),
       };
-      persistLocal(step.id, next, applicationId ? { id: applicationId, email: next.email } : null);
+      persistLocal(step.id, next);
       return next;
     });
   }
 
-  async function save(submit: boolean, nextStep?: WizardStepId) {
-    const parsed = parseApplicationDraft(
-      { ...fields, id: applicationId },
-      submit ? "complete" : "partial"
+  const selfName = useMemo(() => {
+    return (
+      fields.householdMembers.find((member) => member.relationship === "self")
+        ?.fullName || fields.fullName
     );
-    if (!parsed.ok) {
-      setErrors(parsed.errors);
-      setSaveError(
-        submit
-          ? "Check the highlighted fields before submitting."
-          : "Check the highlighted fields."
-      );
+  }, [fields.fullName, fields.householdMembers]);
+
+  async function save(submit: boolean) {
+    const stepErrors = submit
+      ? validateWizardStep(step.id, fields, { ssnOnFile })
+      : {};
+    if (!submit) {
+      const current = validateWizardStep(step.id, fields, { ssnOnFile });
+      if (Object.keys(current).length > 0) {
+        setErrors(current);
+        return false;
+      }
+    } else if (Object.keys(stepErrors).length > 0 && stepIndex < wizardSteps.length - 1) {
+      setErrors(stepErrors);
       return false;
     }
 
     setSaving(true);
     setSaveError(null);
+    setSaveNotice(null);
     try {
+      const payload = {
+        ...fields,
+        id: applicationId,
+        submit,
+      };
       const response = await fetch("/api/applications", {
         method: applicationId ? "PATCH" : "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          ...parsed.draft,
-          id: applicationId,
-          submit,
-        }),
+        body: JSON.stringify(payload),
       });
-      const payload = (await response.json().catch(() => null)) as
-        | { ok: true; application: ApplicationRecord }
+      const body = (await response.json().catch(() => null)) as
+        | {
+            ok: true;
+            application: PublicApplication;
+          }
         | { ok: false; error?: string; errors?: ApplicationFieldErrors }
         | null;
-
-      if (!response.ok || !payload || !payload.ok) {
-        if (payload && "errors" in payload && payload.errors) {
-          setErrors(payload.errors);
-        }
+      if (!response.ok || !body || !body.ok) {
+        if (body && "errors" in body && body.errors) setErrors(body.errors);
         setSaveError(
-          payload && "error" in payload && payload.error
-            ? payload.error
-            : "Acashi could not store this application. Try again."
+          body && "error" in body && body.error
+            ? body.error
+            : "Acashi could not save this application."
         );
         return false;
       }
-
-      const lookup = {
-        id: payload.application.id,
-        email: payload.application.email,
-      };
-      setApplicationId(lookup.id);
-      persistLocal(nextStep ?? step.id, parsed.draft, lookup);
-
+      setApplicationId(body.application.id);
+      setSsnOnFile(body.application.ssnOnFile);
+      setSsnMasked(body.application.ssnMasked);
+      setFields((current) => ({ ...current, ssn: "" }));
+      persistLocal(step.id, { ...fields, ssn: "" }, {
+        id: body.application.id,
+        email: body.application.email,
+      });
       if (submit) {
-        window.localStorage.removeItem(APPLICATION_DRAFT_STORAGE_KEY);
-        router.push(
-          `/status?id=${encodeURIComponent(lookup.id)}&email=${encodeURIComponent(lookup.email)}`
-        );
+        router.push(`/account?id=${encodeURIComponent(body.application.id)}&email=${encodeURIComponent(body.application.email)}`);
         return true;
       }
-
-      setSaveNotice(
-        applicationId
-          ? "Progress saved."
-          : `Progress saved. Application id ${lookup.id}.`
-      );
+      setSaveNotice("Saved.");
       return true;
     } catch {
       setSaveError("Acashi could not be reached. Try again.");
@@ -320,78 +400,78 @@ export function ApplicationWizard() {
 
   async function onContinue(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const stepErrors = validateWizardStep(step.id, fields);
-    if (Object.keys(stepErrors).length > 0) {
-      setErrors(stepErrors);
-      setSaveError("Check this step before continuing.");
-      return;
-    }
-
     const last = stepIndex === wizardSteps.length - 1;
-    const next = wizardSteps[stepIndex + 1];
-    const ok = await save(last, last ? step.id : next?.id);
+    const ok = await save(last);
     if (ok && !last) {
-      setStepIndex((current) => current + 1);
-      setSaveNotice("Saved. Continue when you are ready.");
+      setErrors({});
+      setStepIndex((current) => Math.min(current + 1, wizardSteps.length - 1));
     }
   }
 
   async function onSaveForLater() {
-    const ok = await save(false, step.id);
-    if (ok) {
-      setSaveNotice(
-        "Saved for later. Use the same browser, or look up status with your application id and email."
-      );
-    }
+    const ok = await save(false);
+    if (ok) setSaveNotice("Draft saved. You can leave and come back on this browser.");
   }
-
-  const selfName = useMemo(
-    () => fields.householdMembers.find((member) => member.relationship === "self")?.fullName,
-    [fields.householdMembers]
-  );
 
   if (!hydrated) {
     return (
-      <div className="space-y-4" role="status" aria-live="polite">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          Loading
-        </p>
-        <div className="h-10 max-w-xs bg-foreground/8" />
-        <div className="h-4 max-w-xl bg-foreground/6" />
-        <span className="sr-only">Loading application…</span>
-      </div>
+      <p className="text-sm text-muted-foreground" role="status">
+        Loading application…
+      </p>
     );
   }
 
   return (
-    <form onSubmit={onContinue} className="space-y-8" noValidate>
+    <form onSubmit={(event) => void onContinue(event)} className="space-y-10" noValidate>
       <ScopeNotice />
       <StatusHint />
+      {fields.selectedPlan ? (
+        <div className="border border-foreground/10 px-4 py-4 text-sm leading-6">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+            Plan of interest · not enrollment
+          </p>
+          <p className="mt-2 font-medium">
+            {fields.selectedPlan.issuer} · {fields.selectedPlan.name}
+          </p>
+          <p className="text-muted-foreground">
+            {fields.selectedPlan.metal}
+            {fields.selectedPlan.planType ? ` · ${fields.selectedPlan.planType}` : ""}
+            {" · "}
+            {formatUsd(fields.selectedPlan.premium)} age {fields.selectedPlan.premiumAge} list
+            {" · deductible "}
+            {formatUsd(fields.selectedPlan.deductible)}
+          </p>
+        </div>
+      ) : (
+        <p className="text-sm leading-7 text-muted-foreground">
+          No plan selected yet. You can still apply, or{" "}
+          <Link href="/" className="underline underline-offset-3">
+            browse Marketplace plans
+          </Link>{" "}
+          first. Selection is interest only.
+        </p>
+      )}
 
-      <ol className="grid grid-cols-3 gap-px bg-foreground/10 sm:grid-cols-6">
-        {wizardSteps.map((item, index) => {
-          const current = index === stepIndex;
-          const reached = index < stepIndex;
-          return (
-            <li
-              key={item.id}
+      <ol className="grid gap-px bg-foreground/10 sm:grid-cols-6">
+        {wizardSteps.map((item, index) => (
+          <li
+            key={item.id}
+            className={cn(
+              "bg-background px-3 py-3",
+              index === stepIndex && "bg-foreground text-background"
+            )}
+          >
+            <p
               className={cn(
-                "bg-background px-2 py-3 sm:px-3",
-                current && "bg-foreground text-background"
+                "text-[10px] uppercase tracking-[0.16em]",
+                index === stepIndex ? "text-background/70" : "text-muted-foreground"
               )}
             >
-              <p
-                className={cn(
-                  "text-[10px] uppercase tracking-[0.16em]",
-                  current ? "text-background/70" : "text-muted-foreground"
-                )}
-              >
-                {current ? "Now" : reached ? "Done" : "Later"}
-              </p>
-              <p className="mt-1 text-xs font-medium sm:text-sm">{item.label}</p>
-            </li>
-          );
-        })}
+              {index === stepIndex ? "Now" : index < stepIndex ? "Done" : "Later"}
+            </p>
+            <p className="mt-1 text-sm">{item.label}</p>
+          </li>
+        ))}
       </ol>
 
       {saveError ? (
@@ -415,11 +495,17 @@ export function ApplicationWizard() {
         </p>
       ) : null}
 
-      {step.id === "contact" ? (
-        <ContactStep fields={fields} errors={errors} update={update} />
+      {step.id === "identity" ? (
+        <IdentityStep
+          fields={fields}
+          errors={errors}
+          update={update}
+          ssnOnFile={ssnOnFile}
+          ssnMasked={ssnMasked}
+        />
       ) : null}
-      {step.id === "location" ? (
-        <LocationStep fields={fields} errors={errors} update={update} />
+      {step.id === "address" ? (
+        <AddressStep fields={fields} errors={errors} update={update} />
       ) : null}
       {step.id === "household" ? (
         <HouseholdStep
@@ -480,25 +566,29 @@ export function ApplicationWizard() {
       <p className="text-xs leading-5 text-muted-foreground">
         Stored in Firestore collection{" "}
         <span className="font-mono">acashi_applications</span> in GCP project{" "}
-        <span className="font-mono">devo-holding</span>. Progress is also kept
-        in this browser.
+        <span className="font-mono">devo-holding</span>. SSN is encrypted at rest
+        and is never written to this browser or to URLs.
       </p>
     </form>
   );
 }
 
-function ContactStep({
+function IdentityStep({
   fields,
   errors,
   update,
+  ssnOnFile,
+  ssnMasked,
 }: {
   fields: ApplicationDraft;
   errors: ApplicationFieldErrors;
   update: <K extends keyof ApplicationDraft>(key: K, value: ApplicationDraft[K]) => void;
+  ssnOnFile: boolean;
+  ssnMasked: string;
 }) {
   return (
     <div className="space-y-8">
-      <Field label="Full name" htmlFor="fullName" error={errors.fullName}>
+      <Field label="Full legal name" htmlFor="fullName" error={errors.fullName}>
         <input
           id="fullName"
           name="fullName"
@@ -507,6 +597,45 @@ function ContactStep({
           aria-invalid={Boolean(errors.fullName)}
           className={fieldClass(Boolean(errors.fullName))}
           onChange={(event) => update("fullName", event.target.value)}
+        />
+      </Field>
+      <Field
+        label="Date of birth"
+        htmlFor="dateOfBirth"
+        hint="As used on Healthplanfinder. YYYY-MM-DD."
+        error={errors.dateOfBirth}
+      >
+        <input
+          id="dateOfBirth"
+          name="dateOfBirth"
+          type="date"
+          autoComplete="bday"
+          value={fields.dateOfBirth}
+          aria-invalid={Boolean(errors.dateOfBirth)}
+          className={fieldClass(Boolean(errors.dateOfBirth))}
+          onChange={(event) => update("dateOfBirth", event.target.value)}
+        />
+      </Field>
+      <Field
+        label="Social Security number"
+        htmlFor="ssn"
+        hint={
+          ssnOnFile
+            ? `On file as ${ssnMasked || "•••-••-••••"}. Re-enter only if it needs to change. Never placed in URLs.`
+            : "Required for a complete file. Encrypted at rest. Not shown on your account page. Not placed in URLs."
+        }
+        error={errors.ssn}
+      >
+        <input
+          id="ssn"
+          name="ssn-applicant"
+          type="password"
+          inputMode="numeric"
+          autoComplete="off"
+          value={fields.ssn}
+          aria-invalid={Boolean(errors.ssn)}
+          className={fieldClass(Boolean(errors.ssn))}
+          onChange={(event) => update("ssn", event.target.value)}
         />
       </Field>
       <div className="grid gap-8 sm:grid-cols-2">
@@ -572,7 +701,7 @@ function ContactStep({
   );
 }
 
-function LocationStep({
+function AddressStep({
   fields,
   errors,
   update,
@@ -581,59 +710,50 @@ function LocationStep({
   errors: ApplicationFieldErrors;
   update: <K extends keyof ApplicationDraft>(key: K, value: ApplicationDraft[K]) => void;
 }) {
-  const washington = fields.state === homeLicenseState;
   return (
     <div className="space-y-8">
       <p className="text-sm leading-7 text-muted-foreground">
-        This portal is built for Washington FFM / HealthCare.gov. Default
-        state is Washington. There is no Covered California application here.
+        Washington residential address. Enrollment is on Healthplanfinder, not
+        HealthCare.gov.
       </p>
-      {!washington ? (
-        <p
-          role="status"
-          className="border border-foreground/12 px-4 py-3 text-sm leading-6"
-        >
-          A non-Washington state is selected. Producer licensing for Acashi is
-          Washington OIC. Enrollment for Washington households is on
-          HealthCare.gov, not a state-based marketplace.
-        </p>
-      ) : null}
-      <div className="grid gap-8 sm:grid-cols-3">
+      <Field label="Street address" htmlFor="streetAddress" error={errors.streetAddress}>
+        <input
+          id="streetAddress"
+          name="streetAddress"
+          autoComplete="street-address"
+          value={fields.streetAddress}
+          aria-invalid={Boolean(errors.streetAddress)}
+          className={fieldClass(Boolean(errors.streetAddress))}
+          onChange={(event) => update("streetAddress", event.target.value)}
+        />
+      </Field>
+      <div className="grid gap-8 sm:grid-cols-2">
+        <Field label="City" htmlFor="city" error={errors.city}>
+          <input
+            id="city"
+            name="city"
+            autoComplete="address-level2"
+            value={fields.city}
+            aria-invalid={Boolean(errors.city)}
+            className={fieldClass(Boolean(errors.city))}
+            onChange={(event) => update("city", event.target.value)}
+          />
+        </Field>
         <Field label="State" htmlFor="state" error={errors.state}>
-          <select
+          <input
             id="state"
             name="state"
-            value={fields.state}
-            aria-invalid={Boolean(errors.state)}
+            value={homeLicenseState}
+            readOnly
             className={fieldClass(Boolean(errors.state))}
-            onChange={(event) => {
-              const next = event.target.value as UsState | "";
-              update("state", next);
-              if (
-                next === homeLicenseState &&
-                fields.county &&
-                !isWashingtonCounty(fields.county)
-              ) {
-                update("county", "");
-              }
-            }}
-          >
-            <option value="">Select state</option>
-            {usStates.map((state) => (
-              <option key={state.code} value={state.code}>
-                {state.name}
-              </option>
-            ))}
-          </select>
+          />
         </Field>
+      </div>
+      <div className="grid gap-8 sm:grid-cols-2">
         <Field
           label="ZIP"
           htmlFor="zip"
-          hint={
-            washington
-              ? "Washington ZIPs are 98001–99403. Marketplace eligibility is local."
-              : "Marketplace eligibility is local."
-          }
+          hint="Washington ZIPs are 98001–99403."
           error={errors.zip}
         >
           <input
@@ -647,43 +767,22 @@ function LocationStep({
             onChange={(event) => update("zip", event.target.value)}
           />
         </Field>
-        <Field
-          label="County"
-          htmlFor="county"
-          hint={
-            washington
-              ? "Washington county as used on HealthCare.gov. This is not a plan quote."
-              : "As listed for your ZIP. This is not a plan quote."
-          }
-          error={errors.county}
-        >
-          {washington ? (
-            <select
-              id="county"
-              name="county"
-              value={isWashingtonCounty(fields.county) ? fields.county : ""}
-              aria-invalid={Boolean(errors.county)}
-              className={fieldClass(Boolean(errors.county))}
-              onChange={(event) => update("county", event.target.value)}
-            >
-              <option value="">Select county</option>
-              {washingtonCounties.map((county) => (
-                <option key={county} value={county}>
-                  {county}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              id="county"
-              name="county"
-              autoComplete="address-level2"
-              value={fields.county}
-              aria-invalid={Boolean(errors.county)}
-              className={fieldClass(Boolean(errors.county))}
-              onChange={(event) => update("county", event.target.value)}
-            />
-          )}
+        <Field label="County" htmlFor="county" error={errors.county}>
+          <select
+            id="county"
+            name="county"
+            value={isWashingtonCounty(fields.county) ? fields.county : ""}
+            aria-invalid={Boolean(errors.county)}
+            className={fieldClass(Boolean(errors.county))}
+            onChange={(event) => update("county", event.target.value)}
+          >
+            <option value="">Select county</option>
+            {washingtonCounties.map((county) => (
+              <option key={county} value={county}>
+                {county}
+              </option>
+            ))}
+          </select>
         </Field>
       </div>
     </div>
@@ -706,8 +805,8 @@ function HouseholdStep({
   return (
     <div className="space-y-6">
       <p className="text-sm leading-7 text-muted-foreground">
-        People who would be on the same Marketplace application, including you.
-        Ages matter. Tobacco is asked for people 18 or older. This is not a
+        People who would be on the same Healthplanfinder application, including
+        you. Ages matter. Tobacco is asked for people 18 or older. This is not a
         medical questionnaire.
       </p>
       {errors.householdMembers ? (
@@ -1070,17 +1169,26 @@ function ConsentStep({
         </p>
         <p className="mt-2 text-foreground">
           {selfName || fields.fullName || "Applicant"} · {fields.email} ·{" "}
-          {fields.state || "—"} {fields.zip} {fields.county}
+          {fields.streetAddress} {fields.city} {fields.state || "—"} {fields.zip}{" "}
+          {fields.county}
         </p>
         <p>
           Household {fields.householdMembers.length}. Income{" "}
           {fields.incomeBand ? incomeBandLabels[fields.incomeBand as IncomeBand] : "—"}.
         </p>
+        {fields.selectedPlan ? (
+          <p>
+            Plan of interest: {fields.selectedPlan.issuer} {fields.selectedPlan.name}{" "}
+            — not a binding enrollment.
+          </p>
+        ) : (
+          <p>No plan of interest selected.</p>
+        )}
       </div>
       <Field
         label="Notes (optional)"
         htmlFor="notes"
-        hint="Deadlines, current coverage, or questions. Do not send medical records or Social Security numbers."
+        hint="Deadlines, current coverage, or questions. Do not put a Social Security number in notes."
         error={errors.notes}
       >
         <textarea

@@ -4,34 +4,34 @@ import { buttonVariants } from "@/components/ui/button";
 import {
   enrollmentInfo,
   enrollmentPath,
-  healthcareGov,
+  healthplanfinder,
   homeLicenseRegulator,
   parentBrand,
 } from "@/lib/legal";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Enrollment on HealthCare.gov",
+  title: "Enrollment on Healthplanfinder",
 };
 
 export default function EnrollmentPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-16 md:py-20">
       <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-        Washington · FFM · HealthCare.gov
+        Washington · Healthplanfinder · WAHBE
       </p>
       <h1 className="font-heading mt-3 text-4xl tracking-tight md:text-5xl">
         How enrollment works
       </h1>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
         Washington residents enroll on{" "}
-        <a href={healthcareGov} className="underline underline-offset-3">
-          HealthCare.gov
+        <a href={healthplanfinder} className="underline underline-offset-3">
+          Healthplanfinder
         </a>
-        , the Federally-Facilitated Marketplace. Acashi is not the exchange,
-        not Covered California, and not a quote tool. A licensed producer
-        assists. {parentBrand} uses its existing legal entity; licensing for
-        this market is {homeLicenseRegulator}.
+        , the state-based Marketplace. Acashi is not the Exchange, not
+        HealthCare.gov, and not a quote tool. A licensed producer assists.{" "}
+        {parentBrand} uses its existing legal entity; licensing for this market
+        is {homeLicenseRegulator}.
       </p>
 
       <ol className="mt-12 grid gap-px bg-foreground/10 sm:grid-cols-3">
@@ -65,13 +65,19 @@ export default function EnrollmentPage() {
 
       <div className="mt-14 flex flex-wrap gap-3">
         <Link href="/" className={cn(buttonVariants({ size: "lg" }))}>
+          Browse plans
+        </Link>
+        <Link
+          href="/apply"
+          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+        >
           Start an application
         </Link>
         <a
-          href={healthcareGov}
+          href={healthplanfinder}
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
         >
-          Finish on HealthCare.gov
+          Finish on Healthplanfinder
         </a>
       </div>
     </div>

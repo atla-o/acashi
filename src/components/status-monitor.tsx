@@ -10,13 +10,14 @@ import {
   formatSubmittedAt,
   incomeBandLabels,
   isApplicationId,
+  publicApplication,
   statusCopy,
   statusLabels,
-  type ApplicationRecord,
 } from "@/lib/application";
 import { APPLICATION_STORAGE_KEY } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
+type PublicApplication = ReturnType<typeof publicApplication>;
 type Lookup = { id: string; email: string };
 
 function readStoredLookup(): Lookup | null {
@@ -63,7 +64,7 @@ function StatusLookup({
   const [email, setEmail] = useState(queryEmail);
   const [loading, setLoading] = useState(Boolean(queryId && queryEmail));
   const [error, setError] = useState<string | null>(null);
-  const [application, setApplication] = useState<ApplicationRecord | null>(null);
+  const [application, setApplication] = useState<PublicApplication | null>(null);
   const [lookedUp, setLookedUp] = useState(Boolean(queryId && queryEmail));
 
   useEffect(() => {
@@ -92,7 +93,7 @@ function StatusLookup({
         cache: "no-store",
       });
       const payload = (await response.json().catch(() => null)) as
-        | { ok: true; application: ApplicationRecord }
+            | { ok: true; application: PublicApplication }
         | { ok: false; error?: string }
         | null;
 
@@ -220,7 +221,7 @@ function StatusLookup({
   );
 }
 
-function StatusCard({ application }: { application: ApplicationRecord }) {
+function StatusCard({ application }: { application: PublicApplication }) {
   return (
     <section
       role="status"
@@ -284,6 +285,14 @@ function StatusCard({ application }: { application: ApplicationRecord }) {
           value={formatSubmittedAt(application.submittedAt)}
         />
         <Row label="Name" value={application.fullName} />
+        <Row
+          label="Date of birth"
+          value={application.dateOfBirth || "—"}
+        />
+        <Row
+          label="Social Security number"
+          value={application.ssnMasked || "Masked"}
+        />
         <Row label="Email" value={application.email} />
         <Row
           label="Contact"
@@ -294,8 +303,8 @@ function StatusCard({ application }: { application: ApplicationRecord }) {
           }
         />
         <Row
-          label="Household"
-          value={`${application.householdSize} · ${application.state} ${application.zip}${application.county ? ` · ${application.county}` : ""}`}
+          label="Address"
+          value={`${application.streetAddress || ""} ${application.city || ""} ${application.state} ${application.zip}${application.county ? ` · ${application.county}` : ""}`.trim()}
         />
         {application.householdMembers?.length ? (
           <Row
@@ -319,6 +328,12 @@ function StatusCard({ application }: { application: ApplicationRecord }) {
         {application.annualIncome ? (
           <Row label="Approximate income" value={`$${application.annualIncome}`} />
         ) : null}
+        {application.selectedPlan ? (
+          <Row
+            label="Plan of interest"
+            value={`${application.selectedPlan.issuer} · ${application.selectedPlan.name} (${application.selectedPlan.metal}) — not enrollment`}
+          />
+        ) : null}
         <Row
           label="Agent assistance consent"
           value={
@@ -330,16 +345,15 @@ function StatusCard({ application }: { application: ApplicationRecord }) {
       </dl>
 
       <p className="text-sm leading-7 text-muted-foreground">
-        Ready to submit or submitted means a licensed agent should enroll on{" "}
+        Ready to submit or submitted means a licensed producer should enroll on{" "}
         <a
-          href="https://www.healthcare.gov"
+          href="https://www.wahealthplanfinder.org"
           className="underline underline-offset-3"
         >
-          HealthCare.gov
-        </a>{" "}
-        or with the producer. Washington uses the FFM, not a state-based
-        marketplace. Acashi does not complete that step here. FFM enrollment
-        assist waits on PY2027 RCL.
+          Healthplanfinder
+        </a>
+        . Washington is a state-based Marketplace. Acashi does not complete that
+        step here. Your Social Security number is masked on this page.
       </p>
     </section>
   );

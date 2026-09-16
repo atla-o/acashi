@@ -1,0 +1,2353 @@
+{
+  "zips": {
+    "98001": {
+      "county": "King",
+      "city": "Algona"
+    },
+    "98002": {
+      "county": "King",
+      "city": "Auburn"
+    },
+    "98003": {
+      "county": "King",
+      "city": "Federal Way"
+    },
+    "98004": {
+      "county": "King",
+      "city": "Beaux Arts"
+    },
+    "98005": {
+      "county": "King",
+      "city": "Bellevue"
+    },
+    "98006": {
+      "county": "King",
+      "city": "Bellevue"
+    },
+    "98007": {
+      "county": "King",
+      "city": "Bellevue"
+    },
+    "98008": {
+      "county": "King",
+      "city": "Bellevue"
+    },
+    "98010": {
+      "county": "King",
+      "city": "Black Diamond"
+    },
+    "98011": {
+      "county": "King",
+      "city": "Bothell"
+    },
+    "98012": {
+      "county": "Snohomish",
+      "city": "Mill Creek"
+    },
+    "98014": {
+      "county": "King",
+      "city": "Carnation"
+    },
+    "98019": {
+      "county": "King",
+      "city": "Duvall"
+    },
+    "98020": {
+      "county": "Snohomish",
+      "city": "Woodway"
+    },
+    "98021": {
+      "county": "Snohomish",
+      "city": "Bothell"
+    },
+    "98022": {
+      "county": "King",
+      "city": "Enumclaw"
+    },
+    "98023": {
+      "county": "King",
+      "city": "Federal Way"
+    },
+    "98024": {
+      "county": "King",
+      "city": "Fall City"
+    },
+    "98025": {
+      "county": "King",
+      "city": "Hobart"
+    },
+    "98026": {
+      "county": "Snohomish",
+      "city": "Edmonds"
+    },
+    "98027": {
+      "county": "King",
+      "city": "Issaquah"
+    },
+    "98028": {
+      "county": "King",
+      "city": "Kenmore"
+    },
+    "98029": {
+      "county": "King",
+      "city": "Zcta 98029"
+    },
+    "98031": {
+      "county": "King",
+      "city": "Kent"
+    },
+    "98032": {
+      "county": "King",
+      "city": "Kent"
+    },
+    "98033": {
+      "county": "King",
+      "city": "Kirkland"
+    },
+    "98034": {
+      "county": "King",
+      "city": "Kirkland"
+    },
+    "98036": {
+      "county": "Snohomish",
+      "city": "Brier"
+    },
+    "98037": {
+      "county": "Snohomish",
+      "city": "Lynnwood"
+    },
+    "98038": {
+      "county": "King",
+      "city": "Maple Valley"
+    },
+    "98039": {
+      "county": "King",
+      "city": "Medina"
+    },
+    "98040": {
+      "county": "King",
+      "city": "Mercer Island"
+    },
+    "98042": {
+      "county": "King",
+      "city": "Kent"
+    },
+    "98043": {
+      "county": "Snohomish",
+      "city": "Mountlake Terrac"
+    },
+    "98045": {
+      "county": "King",
+      "city": "North Bend"
+    },
+    "98047": {
+      "county": "King",
+      "city": "Pacific"
+    },
+    "98051": {
+      "county": "King",
+      "city": "Ravensdale"
+    },
+    "98052": {
+      "county": "King",
+      "city": "Redmond"
+    },
+    "98053": {
+      "county": "King",
+      "city": "Redmond"
+    },
+    "98055": {
+      "county": "King",
+      "city": "Renton"
+    },
+    "98056": {
+      "county": "King",
+      "city": "Renton"
+    },
+    "98058": {
+      "county": "King",
+      "city": "Renton"
+    },
+    "98059": {
+      "county": "King",
+      "city": "Renton"
+    },
+    "98065": {
+      "county": "King",
+      "city": "Snoqualmie"
+    },
+    "98068": {
+      "county": "Kittitas",
+      "city": "Snoqualmie Pass"
+    },
+    "98070": {
+      "county": "King",
+      "city": "Vashon"
+    },
+    "98072": {
+      "county": "King",
+      "city": "Woodinville"
+    },
+    "98092": {
+      "county": "King",
+      "city": "Zcta 98092"
+    },
+    "980HH": {
+      "county": "King",
+      "city": "Zcta 980Hh"
+    },
+    "980XX": {
+      "county": "King",
+      "city": "Zcta 980Xx"
+    },
+    "98101": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98102": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98103": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98104": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98105": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98106": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98107": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98108": {
+      "county": "King",
+      "city": "Tukwila"
+    },
+    "98109": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98110": {
+      "county": "Kitsap",
+      "city": "Bainbridge Islan"
+    },
+    "98112": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98115": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98116": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98117": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98118": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98119": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98121": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98122": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98125": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98126": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98133": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98134": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98136": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98144": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98146": {
+      "county": "King",
+      "city": "Burien"
+    },
+    "98148": {
+      "county": "King",
+      "city": "Normandy Park"
+    },
+    "98154": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98155": {
+      "county": "King",
+      "city": "Lk Forest Park"
+    },
+    "98164": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98166": {
+      "county": "King",
+      "city": "Normandy Park"
+    },
+    "98168": {
+      "county": "King",
+      "city": "Tukwila"
+    },
+    "98174": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98177": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "98178": {
+      "county": "King",
+      "city": "Tukwila"
+    },
+    "98188": {
+      "county": "King",
+      "city": "Tukwila"
+    },
+    "98198": {
+      "county": "King",
+      "city": "Des Moines"
+    },
+    "98199": {
+      "county": "King",
+      "city": "Seattle"
+    },
+    "981HH": {
+      "county": "King",
+      "city": "Zcta 981Hh"
+    },
+    "98201": {
+      "county": "Snohomish",
+      "city": "Everett"
+    },
+    "98203": {
+      "county": "Snohomish",
+      "city": "Everett"
+    },
+    "98204": {
+      "county": "Snohomish",
+      "city": "Everett"
+    },
+    "98205": {
+      "county": "Snohomish",
+      "city": "Everett"
+    },
+    "98208": {
+      "county": "Snohomish",
+      "city": "Everett"
+    },
+    "98220": {
+      "county": "Whatcom",
+      "city": "Acme"
+    },
+    "98221": {
+      "county": "Skagit",
+      "city": "Anacortes"
+    },
+    "98222": {
+      "county": "San Juan",
+      "city": "Blakely Island"
+    },
+    "98223": {
+      "county": "Snohomish",
+      "city": "Arlington"
+    },
+    "98224": {
+      "county": "King",
+      "city": "Baring"
+    },
+    "98225": {
+      "county": "Whatcom",
+      "city": "Bellingham"
+    },
+    "98226": {
+      "county": "Whatcom",
+      "city": "Bellingham"
+    },
+    "98230": {
+      "county": "Whatcom",
+      "city": "Blaine"
+    },
+    "98232": {
+      "county": "Skagit",
+      "city": "Bow"
+    },
+    "98233": {
+      "county": "Skagit",
+      "city": "Burlington"
+    },
+    "98235": {
+      "county": "Skagit",
+      "city": "Clearlake"
+    },
+    "98236": {
+      "county": "Island",
+      "city": "Clinton"
+    },
+    "98237": {
+      "county": "Skagit",
+      "city": "Concrete"
+    },
+    "98238": {
+      "county": "Skagit",
+      "city": "Conway"
+    },
+    "98239": {
+      "county": "Island",
+      "city": "Coupeville"
+    },
+    "98240": {
+      "county": "Whatcom",
+      "city": "Custer"
+    },
+    "98241": {
+      "county": "Snohomish",
+      "city": "Darrington"
+    },
+    "98243": {
+      "county": "San Juan",
+      "city": "Deer Harbor"
+    },
+    "98244": {
+      "county": "Whatcom",
+      "city": "Glacier"
+    },
+    "98245": {
+      "county": "San Juan",
+      "city": "Eastsound"
+    },
+    "98247": {
+      "county": "Whatcom",
+      "city": "Everson"
+    },
+    "98248": {
+      "county": "Whatcom",
+      "city": "Ferndale"
+    },
+    "98249": {
+      "county": "Island",
+      "city": "Freeland"
+    },
+    "98250": {
+      "county": "San Juan",
+      "city": "Friday Harbor"
+    },
+    "98251": {
+      "county": "Snohomish",
+      "city": "Gold Bar"
+    },
+    "98252": {
+      "county": "Snohomish",
+      "city": "Granite Falls"
+    },
+    "98253": {
+      "county": "Island",
+      "city": "Greenbank"
+    },
+    "98256": {
+      "county": "Snohomish",
+      "city": "Index"
+    },
+    "98257": {
+      "county": "Skagit",
+      "city": "La Conner"
+    },
+    "98258": {
+      "county": "Snohomish",
+      "city": "Lake Stevens"
+    },
+    "98260": {
+      "county": "Island",
+      "city": "Langley"
+    },
+    "98261": {
+      "county": "San Juan",
+      "city": "Lopez"
+    },
+    "98262": {
+      "county": "Whatcom",
+      "city": "Lummi Island"
+    },
+    "98264": {
+      "county": "Whatcom",
+      "city": "Lynden"
+    },
+    "98267": {
+      "county": "Skagit",
+      "city": "Marblemount"
+    },
+    "98270": {
+      "county": "Snohomish",
+      "city": "Marysville"
+    },
+    "98271": {
+      "county": "Snohomish",
+      "city": "Marysville"
+    },
+    "98272": {
+      "county": "Snohomish",
+      "city": "Monroe"
+    },
+    "98273": {
+      "county": "Skagit",
+      "city": "Mount Vernon"
+    },
+    "98274": {
+      "county": "Skagit",
+      "city": "Zcta 98274"
+    },
+    "98275": {
+      "county": "Snohomish",
+      "city": "Mukilteo"
+    },
+    "98277": {
+      "county": "Island",
+      "city": "Oak Harbor"
+    },
+    "98279": {
+      "county": "San Juan",
+      "city": "Olga"
+    },
+    "98280": {
+      "county": "San Juan",
+      "city": "Orcas"
+    },
+    "98281": {
+      "county": "Whatcom",
+      "city": "Point Roberts"
+    },
+    "98283": {
+      "county": "Skagit",
+      "city": "Rockport"
+    },
+    "98284": {
+      "county": "Skagit",
+      "city": "Sedro Woolley"
+    },
+    "98286": {
+      "county": "San Juan",
+      "city": "Shaw Island"
+    },
+    "98288": {
+      "county": "King",
+      "city": "Skykomish"
+    },
+    "98290": {
+      "county": "Snohomish",
+      "city": "Snohomish"
+    },
+    "98292": {
+      "county": "Snohomish",
+      "city": "Stanwood"
+    },
+    "98294": {
+      "county": "Snohomish",
+      "city": "Sultan"
+    },
+    "98295": {
+      "county": "Whatcom",
+      "city": "Sumas"
+    },
+    "98296": {
+      "county": "Snohomish",
+      "city": "Zcta 98296"
+    },
+    "98297": {
+      "county": "San Juan",
+      "city": "Waldron"
+    },
+    "982HH": {
+      "county": "Island",
+      "city": "Zcta 982Hh"
+    },
+    "982XX": {
+      "county": "Whatcom",
+      "city": "Zcta 982Xx"
+    },
+    "98303": {
+      "county": "Pierce",
+      "city": "Anderson Island"
+    },
+    "98304": {
+      "county": "Pierce",
+      "city": "Ashford"
+    },
+    "98305": {
+      "county": "Clallam",
+      "city": "Beaver"
+    },
+    "98310": {
+      "county": "Kitsap",
+      "city": "Bremerton"
+    },
+    "98311": {
+      "county": "Kitsap",
+      "city": "Bremerton"
+    },
+    "98312": {
+      "county": "Kitsap",
+      "city": "Bremerton"
+    },
+    "98315": {
+      "county": "Kitsap",
+      "city": "Silverdale"
+    },
+    "98320": {
+      "county": "Jefferson",
+      "city": "Brinnon"
+    },
+    "98321": {
+      "county": "Pierce",
+      "city": "Buckley"
+    },
+    "98323": {
+      "county": "Pierce",
+      "city": "Carbonado"
+    },
+    "98325": {
+      "county": "Jefferson",
+      "city": "Chimacum"
+    },
+    "98326": {
+      "county": "Clallam",
+      "city": "Clallam Bay"
+    },
+    "98327": {
+      "county": "Pierce",
+      "city": "Du Pont"
+    },
+    "98328": {
+      "county": "Pierce",
+      "city": "Eatonville"
+    },
+    "98329": {
+      "county": "Pierce",
+      "city": "Gig Harbor"
+    },
+    "98330": {
+      "county": "Pierce",
+      "city": "Elbe"
+    },
+    "98331": {
+      "county": "Clallam",
+      "city": "Forks"
+    },
+    "98332": {
+      "county": "Pierce",
+      "city": "Gig Harbor"
+    },
+    "98333": {
+      "county": "Pierce",
+      "city": "Fox Island"
+    },
+    "98335": {
+      "county": "Pierce",
+      "city": "Gig Harbor"
+    },
+    "98336": {
+      "county": "Lewis",
+      "city": "Glenoma"
+    },
+    "98337": {
+      "county": "Kitsap",
+      "city": "Bremerton"
+    },
+    "98338": {
+      "county": "Pierce",
+      "city": "Graham"
+    },
+    "98339": {
+      "county": "Jefferson",
+      "city": "Port Hadlock"
+    },
+    "98340": {
+      "county": "Kitsap",
+      "city": "Hansville"
+    },
+    "98342": {
+      "county": "Kitsap",
+      "city": "Indianola"
+    },
+    "98345": {
+      "county": "Kitsap",
+      "city": "Keyport"
+    },
+    "98346": {
+      "county": "Kitsap",
+      "city": "Kingston"
+    },
+    "98349": {
+      "county": "Pierce",
+      "city": "Home"
+    },
+    "98350": {
+      "county": "Clallam",
+      "city": "La Push"
+    },
+    "98351": {
+      "county": "Pierce",
+      "city": "Longbranch"
+    },
+    "98353": {
+      "county": "Kitsap",
+      "city": "Manchester"
+    },
+    "98354": {
+      "county": "Pierce",
+      "city": "Milton"
+    },
+    "98355": {
+      "county": "Lewis",
+      "city": "Mineral"
+    },
+    "98356": {
+      "county": "Lewis",
+      "city": "Morton"
+    },
+    "98357": {
+      "county": "Clallam",
+      "city": "Neah Bay"
+    },
+    "98358": {
+      "county": "Jefferson",
+      "city": "Nordland"
+    },
+    "98359": {
+      "county": "Kitsap",
+      "city": "Olalla"
+    },
+    "98360": {
+      "county": "Pierce",
+      "city": "Orting"
+    },
+    "98361": {
+      "county": "Lewis",
+      "city": "Packwood"
+    },
+    "98362": {
+      "county": "Clallam",
+      "city": "Port Angeles"
+    },
+    "98363": {
+      "county": "Clallam",
+      "city": "Zcta 98363"
+    },
+    "98364": {
+      "county": "Kitsap",
+      "city": "Port Gamble"
+    },
+    "98365": {
+      "county": "Jefferson",
+      "city": "Port Ludlow"
+    },
+    "98366": {
+      "county": "Kitsap",
+      "city": "South Park Villa"
+    },
+    "98367": {
+      "county": "Kitsap",
+      "city": "Zcta 98367"
+    },
+    "98368": {
+      "county": "Jefferson",
+      "city": "Port Townsend"
+    },
+    "98370": {
+      "county": "Kitsap",
+      "city": "Poulsbo"
+    },
+    "98371": {
+      "county": "Pierce",
+      "city": "Puyallup"
+    },
+    "98372": {
+      "county": "Pierce",
+      "city": "Puyallup"
+    },
+    "98373": {
+      "county": "Pierce",
+      "city": "Puyallup"
+    },
+    "98374": {
+      "county": "Pierce",
+      "city": "Puyallup"
+    },
+    "98375": {
+      "county": "Pierce",
+      "city": "Zcta 98375"
+    },
+    "98376": {
+      "county": "Jefferson",
+      "city": "Quilcene"
+    },
+    "98377": {
+      "county": "Lewis",
+      "city": "Randle"
+    },
+    "98380": {
+      "county": "Kitsap",
+      "city": "Seabeck"
+    },
+    "98381": {
+      "county": "Clallam",
+      "city": "Sekiu"
+    },
+    "98382": {
+      "county": "Clallam",
+      "city": "Sequim"
+    },
+    "98383": {
+      "county": "Kitsap",
+      "city": "Silverdale"
+    },
+    "98385": {
+      "county": "Pierce",
+      "city": "South Prairie"
+    },
+    "98387": {
+      "county": "Pierce",
+      "city": "Spanaway"
+    },
+    "98388": {
+      "county": "Pierce",
+      "city": "Steilacoom"
+    },
+    "98390": {
+      "county": "Pierce",
+      "city": "Bonney Lake"
+    },
+    "98392": {
+      "county": "Kitsap",
+      "city": "Suquamish"
+    },
+    "98394": {
+      "county": "Pierce",
+      "city": "Vaughn"
+    },
+    "98396": {
+      "county": "Pierce",
+      "city": "Wilkeson"
+    },
+    "983HH": {
+      "county": "Clallam",
+      "city": "Zcta 983Hh"
+    },
+    "983XX": {
+      "county": "Jefferson",
+      "city": "Zcta 983Xx"
+    },
+    "98402": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98403": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98404": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98405": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98406": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98407": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98408": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98409": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98421": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98422": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98424": {
+      "county": "Pierce",
+      "city": "Fife"
+    },
+    "98433": {
+      "county": "Pierce",
+      "city": "Fort Lewis"
+    },
+    "98439": {
+      "county": "Pierce",
+      "city": "Lakewood Center"
+    },
+    "98443": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98444": {
+      "county": "Pierce",
+      "city": "Parkland"
+    },
+    "98445": {
+      "county": "Pierce",
+      "city": "Parkland"
+    },
+    "98446": {
+      "county": "Pierce",
+      "city": "Parkland"
+    },
+    "98465": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98466": {
+      "county": "Pierce",
+      "city": "Fircrest"
+    },
+    "98467": {
+      "county": "Pierce",
+      "city": "Tacoma"
+    },
+    "98498": {
+      "county": "Pierce",
+      "city": "Lakewood Center"
+    },
+    "98499": {
+      "county": "Pierce",
+      "city": "Lakewood Center"
+    },
+    "984HH": {
+      "county": "Pierce",
+      "city": "Zcta 984Hh"
+    },
+    "98501": {
+      "county": "Thurston",
+      "city": "Olympia"
+    },
+    "98502": {
+      "county": "Thurston",
+      "city": "Olympia"
+    },
+    "98503": {
+      "county": "Thurston",
+      "city": "Lacey"
+    },
+    "98506": {
+      "county": "Thurston",
+      "city": "Lacey"
+    },
+    "98512": {
+      "county": "Thurston",
+      "city": "Olympia"
+    },
+    "98513": {
+      "county": "Thurston",
+      "city": "Lacey"
+    },
+    "98516": {
+      "county": "Thurston",
+      "city": "Lacey"
+    },
+    "98520": {
+      "county": "Grays Harbor",
+      "city": "Aberdeen"
+    },
+    "98524": {
+      "county": "Mason",
+      "city": "Allyn"
+    },
+    "98526": {
+      "county": "Grays Harbor",
+      "city": "Amanda Park"
+    },
+    "98527": {
+      "county": "Pacific",
+      "city": "Bay Center"
+    },
+    "98528": {
+      "county": "Mason",
+      "city": "Bear Creek"
+    },
+    "98530": {
+      "county": "Thurston",
+      "city": "Bucoda"
+    },
+    "98531": {
+      "county": "Lewis",
+      "city": "Centralia"
+    },
+    "98532": {
+      "county": "Lewis",
+      "city": "Chehalis"
+    },
+    "98533": {
+      "county": "Lewis",
+      "city": "Cinebar"
+    },
+    "98535": {
+      "county": "Grays Harbor",
+      "city": "Copalis Beach"
+    },
+    "98536": {
+      "county": "Grays Harbor",
+      "city": "Copalis Crossing"
+    },
+    "98537": {
+      "county": "Grays Harbor",
+      "city": "Cosmopolis"
+    },
+    "98538": {
+      "county": "Lewis",
+      "city": "Curtis"
+    },
+    "98539": {
+      "county": "Lewis",
+      "city": "Doty"
+    },
+    "98541": {
+      "county": "Grays Harbor",
+      "city": "Elma"
+    },
+    "98542": {
+      "county": "Lewis",
+      "city": "Ethel"
+    },
+    "98546": {
+      "county": "Mason",
+      "city": "Grapeview"
+    },
+    "98547": {
+      "county": "Grays Harbor",
+      "city": "Grayland"
+    },
+    "98548": {
+      "county": "Mason",
+      "city": "Hoodsport"
+    },
+    "98550": {
+      "county": "Grays Harbor",
+      "city": "Hoquiam"
+    },
+    "98552": {
+      "county": "Grays Harbor",
+      "city": "Humptulips"
+    },
+    "98555": {
+      "county": "Mason",
+      "city": "Lilliwaup"
+    },
+    "98557": {
+      "county": "Grays Harbor",
+      "city": "Mc Cleary"
+    },
+    "98559": {
+      "county": "Grays Harbor",
+      "city": "Malone"
+    },
+    "98560": {
+      "county": "Mason",
+      "city": "Matlock"
+    },
+    "98562": {
+      "county": "Grays Harbor",
+      "city": "Moclips"
+    },
+    "98563": {
+      "county": "Grays Harbor",
+      "city": "Montesano"
+    },
+    "98564": {
+      "county": "Lewis",
+      "city": "Mossyrock"
+    },
+    "98565": {
+      "county": "Lewis",
+      "city": "Napavine"
+    },
+    "98568": {
+      "county": "Grays Harbor",
+      "city": "Oakville"
+    },
+    "98569": {
+      "county": "Grays Harbor",
+      "city": "Ocean City"
+    },
+    "98570": {
+      "county": "Lewis",
+      "city": "Onalaska"
+    },
+    "98571": {
+      "county": "Grays Harbor",
+      "city": "Pacific Beach"
+    },
+    "98572": {
+      "county": "Lewis",
+      "city": "Pe Ell"
+    },
+    "98575": {
+      "county": "Grays Harbor",
+      "city": "Quinault"
+    },
+    "98576": {
+      "county": "Thurston",
+      "city": "Rainier"
+    },
+    "98577": {
+      "county": "Pacific",
+      "city": "Raymond"
+    },
+    "98579": {
+      "county": "Thurston",
+      "city": "Rochester"
+    },
+    "98580": {
+      "county": "Pierce",
+      "city": "Roy"
+    },
+    "98581": {
+      "county": "Cowlitz",
+      "city": "Ryderwood"
+    },
+    "98582": {
+      "county": "Lewis",
+      "city": "Salkum"
+    },
+    "98584": {
+      "county": "Mason",
+      "city": "Shelton"
+    },
+    "98585": {
+      "county": "Lewis",
+      "city": "Silver Creek"
+    },
+    "98586": {
+      "county": "Pacific",
+      "city": "South Bend"
+    },
+    "98587": {
+      "county": "Grays Harbor",
+      "city": "Taholah"
+    },
+    "98588": {
+      "county": "Mason",
+      "city": "Tahuya"
+    },
+    "98589": {
+      "county": "Thurston",
+      "city": "Tenino"
+    },
+    "98590": {
+      "county": "Pacific",
+      "city": "Tokeland"
+    },
+    "98591": {
+      "county": "Lewis",
+      "city": "Toledo"
+    },
+    "98592": {
+      "county": "Mason",
+      "city": "Union"
+    },
+    "98593": {
+      "county": "Lewis",
+      "city": "Vader"
+    },
+    "98595": {
+      "county": "Grays Harbor",
+      "city": "Westport"
+    },
+    "98596": {
+      "county": "Lewis",
+      "city": "Winlock"
+    },
+    "98597": {
+      "county": "Thurston",
+      "city": "Yelm"
+    },
+    "985HH": {
+      "county": "Grays Harbor",
+      "city": "Zcta 985Hh"
+    },
+    "985XX": {
+      "county": "Grays Harbor",
+      "city": "Zcta 985Xx"
+    },
+    "98601": {
+      "county": "Clark",
+      "city": "Amboy"
+    },
+    "98602": {
+      "county": "Klickitat",
+      "city": "Appleton"
+    },
+    "98603": {
+      "county": "Cowlitz",
+      "city": "Ariel"
+    },
+    "98604": {
+      "county": "Clark",
+      "city": "Battle Ground"
+    },
+    "98605": {
+      "county": "Klickitat",
+      "city": "Cook"
+    },
+    "98606": {
+      "county": "Clark",
+      "city": "Brush Prairie"
+    },
+    "98607": {
+      "county": "Clark",
+      "city": "Camas"
+    },
+    "98610": {
+      "county": "Skamania",
+      "city": "Carson"
+    },
+    "98611": {
+      "county": "Cowlitz",
+      "city": "Castle Rock"
+    },
+    "98612": {
+      "county": "Wahkiakum",
+      "city": "Cathlamet"
+    },
+    "98613": {
+      "county": "Klickitat",
+      "city": "Centerville"
+    },
+    "98614": {
+      "county": "Pacific",
+      "city": "Chinook"
+    },
+    "98616": {
+      "county": "Cowlitz",
+      "city": "Cougar"
+    },
+    "98617": {
+      "county": "Klickitat",
+      "city": "Dallesport"
+    },
+    "98619": {
+      "county": "Klickitat",
+      "city": "Glenwood"
+    },
+    "98620": {
+      "county": "Klickitat",
+      "city": "Goldendale"
+    },
+    "98621": {
+      "county": "Wahkiakum",
+      "city": "Grays River"
+    },
+    "98624": {
+      "county": "Pacific",
+      "city": "Ilwaco"
+    },
+    "98625": {
+      "county": "Cowlitz",
+      "city": "Kalama"
+    },
+    "98626": {
+      "county": "Cowlitz",
+      "city": "Kelso"
+    },
+    "98628": {
+      "county": "Klickitat",
+      "city": "Klickitat"
+    },
+    "98629": {
+      "county": "Clark",
+      "city": "La Center"
+    },
+    "98631": {
+      "county": "Pacific",
+      "city": "Long Beach"
+    },
+    "98632": {
+      "county": "Cowlitz",
+      "city": "Longview"
+    },
+    "98635": {
+      "county": "Klickitat",
+      "city": "Lyle"
+    },
+    "98638": {
+      "county": "Pacific",
+      "city": "Naselle"
+    },
+    "98639": {
+      "county": "Skamania",
+      "city": "North Bonneville"
+    },
+    "98640": {
+      "county": "Pacific",
+      "city": "Ocean Park"
+    },
+    "98641": {
+      "county": "Pacific",
+      "city": "Oysterville"
+    },
+    "98642": {
+      "county": "Clark",
+      "city": "Ridgefield"
+    },
+    "98643": {
+      "county": "Wahkiakum",
+      "city": "Rosburg"
+    },
+    "98644": {
+      "county": "Pacific",
+      "city": "Seaview"
+    },
+    "98645": {
+      "county": "Cowlitz",
+      "city": "Silverlake"
+    },
+    "98647": {
+      "county": "Wahkiakum",
+      "city": "Skamokawa"
+    },
+    "98648": {
+      "county": "Skamania",
+      "city": "Stevenson"
+    },
+    "98649": {
+      "county": "Cowlitz",
+      "city": "Toutle"
+    },
+    "98650": {
+      "county": "Klickitat",
+      "city": "Trout Lake"
+    },
+    "98651": {
+      "county": "Skamania",
+      "city": "Underwood"
+    },
+    "98660": {
+      "county": "Clark",
+      "city": "Vancouver"
+    },
+    "98661": {
+      "county": "Clark",
+      "city": "Vancouver"
+    },
+    "98662": {
+      "county": "Clark",
+      "city": "Orchards"
+    },
+    "98663": {
+      "county": "Clark",
+      "city": "Vancouver"
+    },
+    "98664": {
+      "county": "Clark",
+      "city": "Vancouver"
+    },
+    "98665": {
+      "county": "Clark",
+      "city": "Hazel Dell"
+    },
+    "98670": {
+      "county": "Klickitat",
+      "city": "Wahkiacus"
+    },
+    "98671": {
+      "county": "Clark",
+      "city": "Washougal"
+    },
+    "98672": {
+      "county": "Klickitat",
+      "city": "White Salmon"
+    },
+    "98673": {
+      "county": "Klickitat",
+      "city": "Wishram"
+    },
+    "98674": {
+      "county": "Cowlitz",
+      "city": "Woodland"
+    },
+    "98675": {
+      "county": "Clark",
+      "city": "Yacolt"
+    },
+    "98682": {
+      "county": "Clark",
+      "city": "Vancouver"
+    },
+    "98683": {
+      "county": "Clark",
+      "city": "Zcta 98683"
+    },
+    "98684": {
+      "county": "Clark",
+      "city": "Cascade Park"
+    },
+    "98685": {
+      "county": "Clark",
+      "city": "Felida"
+    },
+    "98686": {
+      "county": "Clark",
+      "city": "Vancouver"
+    },
+    "986HH": {
+      "county": "Clark",
+      "city": "Zcta 986Hh"
+    },
+    "986XX": {
+      "county": "Cowlitz",
+      "city": "Zcta 986Xx"
+    },
+    "98801": {
+      "county": "Chelan",
+      "city": "Wenatchee"
+    },
+    "98802": {
+      "county": "Douglas",
+      "city": "East Wenatchee"
+    },
+    "98811": {
+      "county": "Chelan",
+      "city": "Ardenvoir"
+    },
+    "98812": {
+      "county": "Okanogan",
+      "city": "Brewster"
+    },
+    "98813": {
+      "county": "Douglas",
+      "city": "Bridgeport"
+    },
+    "98814": {
+      "county": "Okanogan",
+      "city": "Carlton"
+    },
+    "98815": {
+      "county": "Chelan",
+      "city": "Cashmere"
+    },
+    "98816": {
+      "county": "Chelan",
+      "city": "Chelan"
+    },
+    "98817": {
+      "county": "Chelan",
+      "city": "Chelan Falls"
+    },
+    "98819": {
+      "county": "Okanogan",
+      "city": "Conconully"
+    },
+    "98821": {
+      "county": "Chelan",
+      "city": "Dryden"
+    },
+    "98822": {
+      "county": "Chelan",
+      "city": "Entiat"
+    },
+    "98823": {
+      "county": "Grant",
+      "city": "Ephrata"
+    },
+    "98826": {
+      "county": "Chelan",
+      "city": "Leavenworth"
+    },
+    "98827": {
+      "county": "Okanogan",
+      "city": "Loomis"
+    },
+    "98828": {
+      "county": "Chelan",
+      "city": "Malaga"
+    },
+    "98829": {
+      "county": "Okanogan",
+      "city": "Malott"
+    },
+    "98830": {
+      "county": "Douglas",
+      "city": "Mansfield"
+    },
+    "98831": {
+      "county": "Chelan",
+      "city": "Manson"
+    },
+    "98832": {
+      "county": "Grant",
+      "city": "Marlin"
+    },
+    "98833": {
+      "county": "Okanogan",
+      "city": "Mazama"
+    },
+    "98834": {
+      "county": "Okanogan",
+      "city": "Methow"
+    },
+    "98836": {
+      "county": "Chelan",
+      "city": "Monitor"
+    },
+    "98837": {
+      "county": "Grant",
+      "city": "Moses Lake"
+    },
+    "98840": {
+      "county": "Okanogan",
+      "city": "Okanogan"
+    },
+    "98841": {
+      "county": "Okanogan",
+      "city": "Omak"
+    },
+    "98843": {
+      "county": "Douglas",
+      "city": "Orondo"
+    },
+    "98844": {
+      "county": "Okanogan",
+      "city": "Oroville"
+    },
+    "98845": {
+      "county": "Douglas",
+      "city": "Palisades"
+    },
+    "98846": {
+      "county": "Okanogan",
+      "city": "Pateros"
+    },
+    "98847": {
+      "county": "Chelan",
+      "city": "Peshastin"
+    },
+    "98848": {
+      "county": "Grant",
+      "city": "Quincy"
+    },
+    "98849": {
+      "county": "Okanogan",
+      "city": "Riverside"
+    },
+    "98850": {
+      "county": "Douglas",
+      "city": "Rock Island"
+    },
+    "98851": {
+      "county": "Grant",
+      "city": "Soap Lake"
+    },
+    "98852": {
+      "county": "Chelan",
+      "city": "Stehekin"
+    },
+    "98853": {
+      "county": "Grant",
+      "city": "Stratford"
+    },
+    "98855": {
+      "county": "Okanogan",
+      "city": "Tonasket"
+    },
+    "98856": {
+      "county": "Okanogan",
+      "city": "Twisp"
+    },
+    "98857": {
+      "county": "Grant",
+      "city": "Warden"
+    },
+    "98858": {
+      "county": "Douglas",
+      "city": "Waterville"
+    },
+    "98859": {
+      "county": "Okanogan",
+      "city": "Wauconda"
+    },
+    "98860": {
+      "county": "Grant",
+      "city": "Wilson Creek"
+    },
+    "98862": {
+      "county": "Okanogan",
+      "city": "Winthrop"
+    },
+    "988HH": {
+      "county": "Chelan",
+      "city": "Zcta 988Hh"
+    },
+    "988XX": {
+      "county": "Okanogan",
+      "city": "Zcta 988Xx"
+    },
+    "98901": {
+      "county": "Yakima",
+      "city": "Terrace Heights"
+    },
+    "98902": {
+      "county": "Yakima",
+      "city": "Yakima"
+    },
+    "98903": {
+      "county": "Yakima",
+      "city": "Union Gap"
+    },
+    "98908": {
+      "county": "Yakima",
+      "city": "Wide Hollow"
+    },
+    "98922": {
+      "county": "Kittitas",
+      "city": "Cle Elum"
+    },
+    "98923": {
+      "county": "Yakima",
+      "city": "Cowiche"
+    },
+    "98925": {
+      "county": "Kittitas",
+      "city": "Easton"
+    },
+    "98926": {
+      "county": "Kittitas",
+      "city": "Ellensburg"
+    },
+    "98930": {
+      "county": "Yakima",
+      "city": "Grandview"
+    },
+    "98932": {
+      "county": "Yakima",
+      "city": "Granger"
+    },
+    "98933": {
+      "county": "Yakima",
+      "city": "Harrah"
+    },
+    "98934": {
+      "county": "Kittitas",
+      "city": "Kittitas"
+    },
+    "98935": {
+      "county": "Yakima",
+      "city": "Mabton"
+    },
+    "98936": {
+      "county": "Yakima",
+      "city": "Moxee"
+    },
+    "98937": {
+      "county": "Yakima",
+      "city": "White Pass"
+    },
+    "98938": {
+      "county": "Yakima",
+      "city": "Outlook"
+    },
+    "98940": {
+      "county": "Kittitas",
+      "city": "Ronald"
+    },
+    "98941": {
+      "county": "Kittitas",
+      "city": "Roslyn"
+    },
+    "98942": {
+      "county": "Yakima",
+      "city": "Selah"
+    },
+    "98943": {
+      "county": "Kittitas",
+      "city": "South Cle Elum"
+    },
+    "98944": {
+      "county": "Yakima",
+      "city": "Sunnyside"
+    },
+    "98946": {
+      "county": "Kittitas",
+      "city": "Thorp"
+    },
+    "98947": {
+      "county": "Yakima",
+      "city": "Tieton"
+    },
+    "98948": {
+      "county": "Yakima",
+      "city": "Toppenish"
+    },
+    "98950": {
+      "county": "Kittitas",
+      "city": "Vantage"
+    },
+    "98951": {
+      "county": "Yakima",
+      "city": "Wapato"
+    },
+    "98952": {
+      "county": "Yakima",
+      "city": "White Swan"
+    },
+    "98953": {
+      "county": "Yakima",
+      "city": "Zillah"
+    },
+    "989HH": {
+      "county": "Benton",
+      "city": "Zcta 989Hh"
+    },
+    "989XX": {
+      "county": "Yakima",
+      "city": "Zcta 989Xx"
+    },
+    "99001": {
+      "county": "Spokane",
+      "city": "Airway Heights"
+    },
+    "99003": {
+      "county": "Spokane",
+      "city": "Chattaroy"
+    },
+    "99004": {
+      "county": "Spokane",
+      "city": "Cheney"
+    },
+    "99005": {
+      "county": "Spokane",
+      "city": "Colbert"
+    },
+    "99006": {
+      "county": "Spokane",
+      "city": "Deer Park"
+    },
+    "99008": {
+      "county": "Lincoln",
+      "city": "Edwall"
+    },
+    "99009": {
+      "county": "Spokane",
+      "city": "Elk"
+    },
+    "99011": {
+      "county": "Spokane",
+      "city": "Fairchild Air Fo"
+    },
+    "99012": {
+      "county": "Spokane",
+      "city": "Fairfield"
+    },
+    "99013": {
+      "county": "Stevens",
+      "city": "Ford"
+    },
+    "99016": {
+      "county": "Spokane",
+      "city": "Greenacres"
+    },
+    "99017": {
+      "county": "Whitman",
+      "city": "Lamont"
+    },
+    "99018": {
+      "county": "Spokane",
+      "city": "Latah"
+    },
+    "99019": {
+      "county": "Spokane",
+      "city": "Liberty Lake"
+    },
+    "99020": {
+      "county": "Spokane",
+      "city": "Marshall"
+    },
+    "99021": {
+      "county": "Spokane",
+      "city": "Mead"
+    },
+    "99022": {
+      "county": "Spokane",
+      "city": "Espanola"
+    },
+    "99023": {
+      "county": "Spokane",
+      "city": "Mica"
+    },
+    "99025": {
+      "county": "Spokane",
+      "city": "Newman Lake"
+    },
+    "99026": {
+      "county": "Stevens",
+      "city": "Nine Mile Falls"
+    },
+    "99027": {
+      "county": "Spokane",
+      "city": "Otis Orchards"
+    },
+    "99029": {
+      "county": "Lincoln",
+      "city": "Reardan"
+    },
+    "99030": {
+      "county": "Spokane",
+      "city": "Rockford"
+    },
+    "99031": {
+      "county": "Spokane",
+      "city": "Spangle"
+    },
+    "99032": {
+      "county": "Lincoln",
+      "city": "Sprague"
+    },
+    "99033": {
+      "county": "Whitman",
+      "city": "Tekoa"
+    },
+    "99034": {
+      "county": "Stevens",
+      "city": "Tumtum"
+    },
+    "99036": {
+      "county": "Spokane",
+      "city": "Valleyford"
+    },
+    "99037": {
+      "county": "Spokane",
+      "city": "Veradale"
+    },
+    "99040": {
+      "county": "Stevens",
+      "city": "Wellpinit"
+    },
+    "990HH": {
+      "county": "Lincoln",
+      "city": "Zcta 990Hh"
+    },
+    "990XX": {
+      "county": "Lincoln",
+      "city": "Zcta 990Xx"
+    },
+    "99101": {
+      "county": "Stevens",
+      "city": "Addy"
+    },
+    "99102": {
+      "county": "Whitman",
+      "city": "Albion"
+    },
+    "99103": {
+      "county": "Lincoln",
+      "city": "Almira"
+    },
+    "99105": {
+      "county": "Adams",
+      "city": "Benge"
+    },
+    "99109": {
+      "county": "Stevens",
+      "city": "Chewelah"
+    },
+    "99110": {
+      "county": "Stevens",
+      "city": "Clayton"
+    },
+    "99111": {
+      "county": "Whitman",
+      "city": "Colfax"
+    },
+    "99113": {
+      "county": "Whitman",
+      "city": "Colton"
+    },
+    "99114": {
+      "county": "Stevens",
+      "city": "Colville"
+    },
+    "99115": {
+      "county": "Grant",
+      "city": "Coulee City"
+    },
+    "99116": {
+      "county": "Okanogan",
+      "city": "Coulee Dam"
+    },
+    "99117": {
+      "county": "Lincoln",
+      "city": "Creston"
+    },
+    "99118": {
+      "county": "Ferry",
+      "city": "Curlew"
+    },
+    "99119": {
+      "county": "Pend Oreille",
+      "city": "Cusick"
+    },
+    "99121": {
+      "county": "Ferry",
+      "city": "Danville"
+    },
+    "99122": {
+      "county": "Lincoln",
+      "city": "Davenport"
+    },
+    "99123": {
+      "county": "Grant",
+      "city": "Electric City"
+    },
+    "99124": {
+      "county": "Okanogan",
+      "city": "Elmer City"
+    },
+    "99125": {
+      "county": "Whitman",
+      "city": "Endicott"
+    },
+    "99126": {
+      "county": "Stevens",
+      "city": "Evans"
+    },
+    "99128": {
+      "county": "Whitman",
+      "city": "Farmington"
+    },
+    "99129": {
+      "county": "Stevens",
+      "city": "Fruitland"
+    },
+    "99130": {
+      "county": "Whitman",
+      "city": "Garfield"
+    },
+    "99131": {
+      "county": "Stevens",
+      "city": "Gifford"
+    },
+    "99133": {
+      "county": "Grant",
+      "city": "Grand Coulee"
+    },
+    "99134": {
+      "county": "Lincoln",
+      "city": "Harrington"
+    },
+    "99135": {
+      "county": "Grant",
+      "city": "Hartline"
+    },
+    "99136": {
+      "county": "Whitman",
+      "city": "Hay"
+    },
+    "99137": {
+      "county": "Stevens",
+      "city": "Hunters"
+    },
+    "99138": {
+      "county": "Ferry",
+      "city": "Inchelium"
+    },
+    "99139": {
+      "county": "Pend Oreille",
+      "city": "Ione"
+    },
+    "99140": {
+      "county": "Ferry",
+      "city": "Keller"
+    },
+    "99141": {
+      "county": "Stevens",
+      "city": "Kettle Falls"
+    },
+    "99143": {
+      "county": "Whitman",
+      "city": "Lacrosse"
+    },
+    "99146": {
+      "county": "Ferry",
+      "city": "Laurier"
+    },
+    "99148": {
+      "county": "Stevens",
+      "city": "Loon Lake"
+    },
+    "99149": {
+      "county": "Whitman",
+      "city": "Malden"
+    },
+    "99150": {
+      "county": "Ferry",
+      "city": "Malo"
+    },
+    "99151": {
+      "county": "Stevens",
+      "city": "Marcus"
+    },
+    "99152": {
+      "county": "Pend Oreille",
+      "city": "Metaline"
+    },
+    "99153": {
+      "county": "Pend Oreille",
+      "city": "Metaline Falls"
+    },
+    "99154": {
+      "county": "Lincoln",
+      "city": "Mohler"
+    },
+    "99155": {
+      "county": "Okanogan",
+      "city": "Nespelem"
+    },
+    "99156": {
+      "county": "Pend Oreille",
+      "city": "Newport"
+    },
+    "99157": {
+      "county": "Stevens",
+      "city": "Northport"
+    },
+    "99158": {
+      "county": "Whitman",
+      "city": "Oakesdale"
+    },
+    "99159": {
+      "county": "Lincoln",
+      "city": "Odessa"
+    },
+    "99160": {
+      "county": "Ferry",
+      "city": "Orient"
+    },
+    "99161": {
+      "county": "Whitman",
+      "city": "Palouse"
+    },
+    "99163": {
+      "county": "Whitman",
+      "city": "Pullman"
+    },
+    "99166": {
+      "county": "Ferry",
+      "city": "Republic"
+    },
+    "99167": {
+      "county": "Stevens",
+      "city": "Rice"
+    },
+    "99169": {
+      "county": "Adams",
+      "city": "Ritzville"
+    },
+    "99170": {
+      "county": "Whitman",
+      "city": "Rosalia"
+    },
+    "99171": {
+      "county": "Whitman",
+      "city": "Saint John"
+    },
+    "99173": {
+      "county": "Stevens",
+      "city": "Springdale"
+    },
+    "99176": {
+      "county": "Whitman",
+      "city": "Thornton"
+    },
+    "99179": {
+      "county": "Whitman",
+      "city": "Uniontown"
+    },
+    "99180": {
+      "county": "Pend Oreille",
+      "city": "Usk"
+    },
+    "99181": {
+      "county": "Stevens",
+      "city": "Valley"
+    },
+    "99185": {
+      "county": "Lincoln",
+      "city": "Wilbur"
+    },
+    "991HH": {
+      "county": "Douglas",
+      "city": "Zcta 991Hh"
+    },
+    "991XX": {
+      "county": "Pend Oreille",
+      "city": "Zcta 991Xx"
+    },
+    "99201": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99202": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99203": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99204": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99205": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99206": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99207": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99208": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99212": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99216": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99217": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99218": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99223": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "99224": {
+      "county": "Spokane",
+      "city": "Spokane"
+    },
+    "992HH": {
+      "county": "Spokane",
+      "city": "Zcta 992Hh"
+    },
+    "99301": {
+      "county": "Franklin",
+      "city": "Pasco"
+    },
+    "99320": {
+      "county": "Benton",
+      "city": "Benton City"
+    },
+    "99321": {
+      "county": "Grant",
+      "city": "Beverly"
+    },
+    "99322": {
+      "county": "Klickitat",
+      "city": "Bickleton"
+    },
+    "99323": {
+      "county": "Walla Walla",
+      "city": "Burbank"
+    },
+    "99324": {
+      "county": "Walla Walla",
+      "city": "College Place"
+    },
+    "99326": {
+      "county": "Franklin",
+      "city": "Connell"
+    },
+    "99328": {
+      "county": "Columbia",
+      "city": "Dayton"
+    },
+    "99329": {
+      "county": "Walla Walla",
+      "city": "Dixie"
+    },
+    "99330": {
+      "county": "Franklin",
+      "city": "Eltopia"
+    },
+    "99332": {
+      "county": "Adams",
+      "city": "Hatton"
+    },
+    "99335": {
+      "county": "Franklin",
+      "city": "Kahlotus"
+    },
+    "99336": {
+      "county": "Benton",
+      "city": "Kennewick"
+    },
+    "99337": {
+      "county": "Benton",
+      "city": "Kennewick"
+    },
+    "99338": {
+      "county": "Benton",
+      "city": "Zcta 99338"
+    },
+    "99341": {
+      "county": "Adams",
+      "city": "Lind"
+    },
+    "99343": {
+      "county": "Franklin",
+      "city": "Mesa"
+    },
+    "99344": {
+      "county": "Adams",
+      "city": "Mattawa"
+    },
+    "99345": {
+      "county": "Benton",
+      "city": "Paterson"
+    },
+    "99346": {
+      "county": "Benton",
+      "city": "Plymouth"
+    },
+    "99347": {
+      "county": "Garfield",
+      "city": "Pomeroy"
+    },
+    "99348": {
+      "county": "Walla Walla",
+      "city": "Prescott"
+    },
+    "99349": {
+      "county": "Grant",
+      "city": "Zcta 99349"
+    },
+    "99350": {
+      "county": "Benton",
+      "city": "Prosser"
+    },
+    "99352": {
+      "county": "Benton",
+      "city": "Richland"
+    },
+    "99353": {
+      "county": "Benton",
+      "city": "Zcta 99353"
+    },
+    "99356": {
+      "county": "Klickitat",
+      "city": "Roosevelt"
+    },
+    "99357": {
+      "county": "Grant",
+      "city": "Royal City"
+    },
+    "99359": {
+      "county": "Columbia",
+      "city": "Starbuck"
+    },
+    "99360": {
+      "county": "Walla Walla",
+      "city": "Lowden"
+    },
+    "99361": {
+      "county": "Walla Walla",
+      "city": "Waitsburg"
+    },
+    "99362": {
+      "county": "Walla Walla",
+      "city": "Walla Walla"
+    },
+    "99363": {
+      "county": "Walla Walla",
+      "city": "Wallula"
+    },
+    "99371": {
+      "county": "Adams",
+      "city": "Washtucna"
+    },
+    "993HH": {
+      "county": "Benton",
+      "city": "Zcta 993Hh"
+    },
+    "993XX": {
+      "county": "Franklin",
+      "city": "Zcta 993Xx"
+    },
+    "99401": {
+      "county": "Asotin",
+      "city": "Anatone"
+    },
+    "99402": {
+      "county": "Asotin",
+      "city": "Asotin"
+    },
+    "99403": {
+      "county": "Asotin",
+      "city": "Clarkston"
+    },
+    "994HH": {
+      "county": "Asotin",
+      "city": "Zcta 994Hh"
+    }
+  },
+  "multiCountyZips": {}
+}

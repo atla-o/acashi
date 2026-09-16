@@ -21,7 +21,7 @@ export async function GET(
   const token = jar.get(PRODUCER_COOKIE)?.value ?? "";
   if (!verifyProducerSessionToken(token)) {
     return NextResponse.json(
-      { ok: false, error: "Producer sign-in required." },
+      { ok: false, error: "Admin sign-in required." },
       { status: 401 }
     );
   }

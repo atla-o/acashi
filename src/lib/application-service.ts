@@ -2,6 +2,7 @@ import {
   isApplicationId,
   normalizeApplicationStatus,
   parseApplicationDraft,
+  pipelineApplication,
   producerApplication,
   publicApplication,
   reduceApplicationSave,
@@ -34,19 +35,6 @@ export async function createOrSaveApplication(input: {
 }): Promise<JsonResult> {
   const body = asObject(input.body);
   const submit = body.submit === true || input.submitDefault === true;
-  const parsed = parseApplicationDraft(body, submit ? "complete" : "partial");
-  if (!parsed.ok) {
-    return {
-      status: 400,
-      body: {
-        ok: false,
-        error: submit
-          ? "Check the required fields before submitting."
-          : "Check the highlighted fields.",
-        errors: parsed.errors,
-      },
-    };
-  }
 
   const id = typeof body.id === "string" ? body.id.trim() : "";
   let existing = null;
@@ -64,6 +52,22 @@ export async function createOrSaveApplication(input: {
         body: { ok: false, error: "No application matched that id." },
       };
     }
+  }
+
+  const parsed = parseApplicationDraft(body, submit ? "complete" : "partial", {
+    ssnOnFile: Boolean(existing?.ssnLast4 || existing?.ssnCiphertext),
+  });
+  if (!parsed.ok) {
+    return {
+      status: 400,
+      body: {
+        ok: false,
+        error: submit
+          ? "Check the required fields before submitting."
+          : "Check the highlighted fields.",
+        errors: parsed.errors,
+      },
+    };
   }
 
   const reduced = reduceApplicationSave({
@@ -149,7 +153,7 @@ export async function listProducerApplications(statusFilter?: string) {
       status: 200,
       body: {
         ok: true,
-        applications: applications.map(producerApplication),
+        applications: applications.map(pipelineApplication),
       },
     } satisfies JsonResult;
   } catch {

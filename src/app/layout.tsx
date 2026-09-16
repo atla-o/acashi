@@ -22,7 +22,7 @@ const instrument = Instrument_Serif({
 
 export const metadata: Metadata = {
   title: {
-    default: `${productName} — Washington FFM / HealthCare.gov`,
+    default: `${productName} — Washington Healthplanfinder`,
     template: `%s · ${productName}`,
   },
   description: tagline,

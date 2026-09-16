@@ -10,17 +10,19 @@ import {
   employmentStatusLabels,
   formatSubmittedAt,
   incomeBandLabels,
+  producerApplication,
   relationshipLabels,
   statusLabels,
-  type ApplicationRecord,
   type ApplicationStatus,
 } from "@/lib/application";
+
+type ProducerView = ReturnType<typeof producerApplication>;
 
 export function ProducerDetail({
   application: initial,
   agentDefaults,
 }: {
-  application: ApplicationRecord;
+  application: ProducerView;
   agentDefaults: { agentName: string; agentNpn: string };
 }) {
   const [application, setApplication] = useState(initial);
@@ -53,7 +55,7 @@ export function ProducerDetail({
         }),
       });
       const payload = (await response.json().catch(() => null)) as
-        | { ok: true; application: ApplicationRecord }
+        | { ok: true; application: ProducerView }
         | { ok: false; error?: string }
         | null;
       if (!response.ok || !payload || !payload.ok) {
@@ -82,8 +84,8 @@ export function ProducerDetail({
     <div className="space-y-10">
       <div>
         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          <Link href="/producer" className="hover:text-foreground">
-            Pipeline
+          <Link href="/admin" className="hover:text-foreground">
+            Admin pipeline
           </Link>
           <span> / file</span>
         </p>
@@ -194,9 +196,14 @@ export function ProducerDetail({
         <dl className="space-y-4 text-sm leading-6">
           <Row label="Email" value={application.email} />
           <Row label="Phone" value={application.phone} />
+          <Row label="Date of birth" value={application.dateOfBirth || "—"} />
           <Row
-            label="Location"
-            value={`${application.state} ${application.zip} ${application.county}`.trim()}
+            label="Social Security number"
+            value={application.ssn || application.ssnMasked || "—"}
+          />
+          <Row
+            label="Address"
+            value={`${application.streetAddress || ""} ${application.city || ""} ${application.state} ${application.zip} ${application.county}`.trim()}
           />
           <Row
             label="Income"
@@ -209,6 +216,14 @@ export function ProducerDetail({
           <Row
             label="Coverage now"
             value={`${application.hasCurrentCoverage || "—"} ${application.currentCoverageType ? coverageTypeLabels[application.currentCoverageType] : ""} ${application.losingCoverageSoon ? `· losing soon: ${application.losingCoverageSoon}` : ""}`.trim()}
+          />
+          <Row
+            label="Plan of interest"
+            value={
+              application.selectedPlan
+                ? `${application.selectedPlan.issuer} · ${application.selectedPlan.name} (${application.selectedPlan.metal}) — interest only`
+                : "None"
+            }
           />
           <Row label="Applicant notes" value={application.notes || "—"} />
         </dl>

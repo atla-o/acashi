@@ -1,7 +1,7 @@
-import { ApplicationWizard } from "@/components/application-wizard";
+import { PlanBrowser } from "@/components/plan-browser";
 import { Separator } from "@/components/ui/separator";
 import {
-  healthcareGov,
+  healthplanfinder,
   homeLicenseRegulator,
   parentBrand,
   productName,
@@ -9,6 +9,7 @@ import {
   whatWeAre,
   whatWeAreNot,
 } from "@/lib/legal";
+import { landscapeNote, planSource, planYear } from "@/lib/plans";
 
 export default function HomePage() {
   return (
@@ -26,11 +27,13 @@ export default function HomePage() {
               {tagline}
             </p>
             <p className="max-w-lg text-sm leading-7 text-muted-foreground">
-              Washington households can get ACA coverage on HealthCare.gov, often
-              with a premium tax credit. Acashi is a producer application
-              portal: complete household data, retainable agent-assistance
-              consent, then handoff. It does not sell a plan or complete
-              enrollment on this site. Licensing path: {homeLicenseRegulator}.
+              Washington is a state-based Marketplace. Households enroll on{" "}
+              <a href={healthplanfinder} className="underline underline-offset-3">
+                Healthplanfinder
+              </a>
+              , often with a premium tax credit. Browse public PY{planYear}{" "}
+              medical plans, save interest, then apply. A licensed producer
+              assists. Licensing path: {homeLicenseRegulator}.
             </p>
           </div>
           <aside className="self-end space-y-4 border border-foreground/10 p-6">
@@ -38,8 +41,9 @@ export default function HomePage() {
               In one sentence
             </p>
             <p className="text-sm leading-6">
-              Save a complete HealthCare.gov file here. A licensed producer
-              enrolls you on the Washington FFM. This is not Covered California.
+              Scroll real Washington plans, file an application, and finish on
+              Healthplanfinder. This is not the official Exchange and not
+              HealthCare.gov.
             </p>
           </aside>
         </div>
@@ -72,82 +76,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-b border-foreground/10">
-        <div className="mx-auto max-w-6xl px-5 py-16 md:py-20">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-            Enrollment
-          </p>
-          <h2 className="font-heading mt-3 text-3xl tracking-tight">
-            Official Marketplace, licensed producer
-          </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-            Enrollment is applying, choosing a plan, and starting coverage on{" "}
-            <a href={healthcareGov} className="underline underline-offset-3">
-              HealthCare.gov
-            </a>
-            . A premium tax credit (APTC) may lower the monthly premium based
-            on household income — Acashi does not calculate or guarantee it.
-            A licensed producer assists using Devo’s existing entity. This site
-            does not quote plans.
-          </p>
-          <p className="mt-4 text-sm">
-            <a href="/enrollment" className="underline underline-offset-3">
-              How enrollment works
-            </a>
-            <span className="text-muted-foreground"> · </span>
-            <a href={healthcareGov} className="underline underline-offset-3">
-              HealthCare.gov
-            </a>
-          </p>
-        </div>
-      </section>
-
       <section className="mx-auto max-w-6xl px-5 py-16 md:py-20">
         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          Application
+          Marketplace
         </p>
         <h2 className="font-heading mt-3 text-4xl tracking-tight">
-          Marketplace application
+          Browse Washington plans
         </h2>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-          Six short steps. State defaults to Washington with county and ZIP for
-          this state. Income is approximate. Acashi does not compute a credit,
-          quote a plan, or enroll you. Read{" "}
-          <a href="/enrollment" className="underline underline-offset-3">
-            how enrollment works
-          </a>{" "}
-          before you start, or go to{" "}
-          <a href={healthcareGov} className="underline underline-offset-3">
-            HealthCare.gov
+          {landscapeNote} {planSource} Selecting a plan saves interest on your
+          application. It does not enroll you. Finish on{" "}
+          <a href={healthplanfinder} className="underline underline-offset-3">
+            Healthplanfinder
           </a>
           .
         </p>
         <Separator className="my-10" />
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,22rem)_1fr]">
-          <aside className="space-y-4 text-sm leading-7 text-muted-foreground">
-            <p>
-              Open enrollment and special enrollment windows are set by the
-              federal Marketplace, not by Acashi. Washington uses HealthCare.gov
-              (FFM), not Covered California. If you already know you need a
-              plan, start on HealthCare.gov while this file is in review.
-            </p>
-            <p>
-              Pipeline: new → in progress → ready to submit → submitted →
-              effectuated, or closed. Ready to submit means a licensed agent
-              can hand the file to HealthSherpa or enroll manually. FFM
-              enrollment assist waits on PY2027 RCL. Closed is not a coverage
-              denial.
-            </p>
-            <p>
-              {parentBrand} uses its existing legal entity. A licensed
-              producer ({homeLicenseRegulator}; writing NPN on each file)
-              assists enrollment on HealthCare.gov. FFM assist waits on PY2027
-              RCL. Until then this portal captures a complete file and consent.
-              It does not pretend to be the exchange.
-            </p>
-          </aside>
-          <ApplicationWizard />
-        </div>
+        <PlanBrowser />
       </section>
     </div>
   );

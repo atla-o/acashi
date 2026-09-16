@@ -1,7 +1,7 @@
 export const site = {
   name: "Acashi",
   tagline:
-    "Washington FFM application portal. Complete HealthCare.gov file, consent, and producer handoff — not Covered California.",
+    "Washington Healthplanfinder interest portal. Browse public plans, apply, and finish on the state Marketplace.",
   parent: "Devo",
   publisher: "Devo / atla-o",
   familyDomain: "devoutshaman.com",
@@ -9,14 +9,15 @@ export const site = {
   publicHost: "https://acashi.devoutshaman.com",
   github: "https://github.com/atla-o/acashi",
   description:
-    "Acashi captures Washington ACA Marketplace application data and agent-assistance consent for HealthCare.gov (FFM) handoff. Not Covered California. Not HealthCare.gov.",
+    "Acashi helps Washington households browse CMS public QHP landscape data, save an interest application (including SSN) for a licensed producer, and finish enrollment on Washington Healthplanfinder. Not the official Exchange.",
 } as const;
 
 export const nav = [
-  { href: "/", label: "Apply" },
-  { href: "/enrollment", label: "Enrollment" },
-  { href: "/status", label: "Status" },
+  { href: "/", label: "Marketplace" },
+  { href: "/apply", label: "Apply" },
+  { href: "/account", label: "Account" },
 ] as const;
 
 export const APPLICATION_STORAGE_KEY = "acashi.application.v1";
-export const APPLICATION_DRAFT_STORAGE_KEY = "acashi.application.draft.v2";
+export const APPLICATION_DRAFT_STORAGE_KEY = "acashi.application.draft.v3";
+export const SELECTED_PLAN_STORAGE_KEY = "acashi.plan.v1";

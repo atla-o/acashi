@@ -46,7 +46,7 @@ export function ProducerLoginForm({
         );
         return;
       }
-      router.replace("/producer");
+      router.replace("/admin");
       router.refresh();
     } catch {
       setSubmitError("Acashi could not be reached. Try again.");
@@ -94,7 +94,7 @@ export function ProducerLoginForm({
       <Field
         label="Password"
         htmlFor="producerPassword"
-        hint="Shared producer password. Magic links use ACASHI_PRODUCER_MAGIC as /producer/login?token=…"
+        hint="Shared Admin password. Magic links use ACASHI_PRODUCER_MAGIC as /admin/login?token=…"
       >
         <input
           id="producerPassword"
