@@ -24,7 +24,7 @@ export async function GET(
 ) {
   if (!(await requireProducer())) {
     return NextResponse.json(
-      { ok: false, error: "Producer sign-in required." },
+      { ok: false, error: "Admin sign-in required." },
       { status: 401 }
     );
   }
@@ -39,7 +39,7 @@ export async function PATCH(
 ) {
   if (!(await requireProducer())) {
     return NextResponse.json(
-      { ok: false, error: "Producer sign-in required." },
+      { ok: false, error: "Admin sign-in required." },
       { status: 401 }
     );
   }

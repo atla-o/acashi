@@ -1037,6 +1037,25 @@ export function producerApplication(record: ApplicationRecord) {
   };
 }
 
+/** Pipeline list for Admin: no SSN plaintext, last4, or ciphertext. */
+export function pipelineApplication(record: ApplicationRecord) {
+  const view = publicApplication(record);
+  return {
+    id: view.id,
+    fullName: view.fullName,
+    email: view.email,
+    state: view.state,
+    zip: view.zip,
+    county: view.county,
+    status: view.status,
+    updatedAt: view.updatedAt,
+    agentAssistanceConsent: view.agentAssistanceConsent,
+    selectedPlan: view.selectedPlan,
+    agentName: record.agentName,
+    agentNpn: record.agentNpn,
+  };
+}
+
 export function draftFromRecord(record: ApplicationRecord): ApplicationDraft {
   return {
     fullName: record.fullName,

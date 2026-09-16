@@ -13,6 +13,8 @@ import {
   isWashingtonZip,
   normalizeApplicationStatus,
   parseApplicationDraft,
+  persistableDraft,
+  pipelineApplication,
   producerApplication,
   publicApplication,
   reduceApplicationSave,
@@ -263,13 +265,13 @@ test("producer status change writes history and export includes NPN", () => {
   const patched = reduceProducerPatch({
     existing: created.record,
     status: "ready_to_submit",
-    statusNote: "Ready for HealthSherpa.",
+    statusNote: "Ready for Healthplanfinder.",
     now: "2026-09-16T14:00:00.000Z",
   });
   assert.equal(patched.ok, true);
   if (!patched.ok) return;
   assert.equal(patched.record.status, "ready_to_submit");
-  assert.match(patched.record.statusHistory.at(-1)?.note ?? "", /HealthSherpa/);
+  assert.match(patched.record.statusHistory.at(-1)?.note ?? "", /Healthplanfinder/);
 
   const payload = applicationToExportPayload(patched.record);
   assert.equal(payload.producer.agentNpn, "999");
@@ -427,9 +429,46 @@ test("full wizard record round-trips through stored shape with writing NPN", () 
   assert.equal(producerView.agentNpn, "12345678");
   assert.equal(producerView.agentName, "Licensed Writer");
   assert.equal(producerView.ssn, "536-90-1111");
+  const pipelineView = pipelineApplication(revived);
+  assert.equal("ssn" in pipelineView, false);
+  assert.equal("ssnMasked" in pipelineView, false);
+  assert.equal("ssnCiphertext" in pipelineView, false);
+  assert.equal("ssnLast4" in pipelineView, false);
 
   const payload = applicationToExportPayload(revived);
   assert.equal(payload.producer.agentNpn, "12345678");
   assert.match(payload.purpose, /Healthplanfinder/);
+});
+
+test("attaches a real WA PUF plan of interest and never keeps SSN on persistable drafts", () => {
+  const parsed = parseApplicationDraft({
+    ...valid,
+    selectedPlan: { id: "61836WA0050036", county: "King", zip: "98101" },
+  });
+  assert.equal(parsed.ok, true);
+  if (!parsed.ok) return;
+  assert.equal(parsed.draft.selectedPlan?.id, "61836WA0050036");
+  assert.equal(parsed.draft.selectedPlan?.issuer, "Ambetter");
+  assert.equal(parsed.draft.selectedPlan?.county, "King");
+  assert.equal(parsed.draft.selectedPlan?.zip, "98101");
+  assert.equal(typeof parsed.draft.selectedPlan?.premium, "number");
+
+  const created = reduceApplicationSave({
+    existing: null,
+    draft: parsed.draft,
+    submit: true,
+    ip: "203.0.113.9",
+    now: "2026-09-16T12:00:00.000Z",
+    agentName: "Devo",
+    agentNpn: "",
+  });
+  assert.equal(created.ok, true);
+  if (!created.ok) return;
+  assert.equal(created.record.selectedPlan?.id, "61836WA0050036");
+  assert.equal(created.record.selectedPlan?.name.includes("Ambetter") || created.record.selectedPlan?.issuer === "Ambetter", true);
+
+  const persistable = persistableDraft(parsed.draft);
+  assert.equal(persistable.ssn, "");
+  assert.equal(parsed.draft.ssn, "536901111");
 });
 

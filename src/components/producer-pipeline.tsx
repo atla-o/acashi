@@ -7,16 +7,18 @@ import { Button } from "@/components/ui/button";
 import {
   applicationStatuses,
   formatSubmittedAt,
+  pipelineApplication,
   statusLabels,
-  type ApplicationRecord,
   type ApplicationStatus,
 } from "@/lib/application";
 import { cn } from "@/lib/utils";
 
+type PipelineRow = ReturnType<typeof pipelineApplication>;
+
 export function ProducerPipeline({
   applications,
 }: {
-  applications: ApplicationRecord[];
+  applications: PipelineRow[];
 }) {
   const router = useRouter();
   const [filter, setFilter] = useState<ApplicationStatus | "all">("all");
@@ -93,6 +95,7 @@ export function ProducerPipeline({
               <tr>
                 <th className="px-4 py-3 font-medium">Applicant</th>
                 <th className="px-4 py-3 font-medium">Where</th>
+                <th className="px-4 py-3 font-medium">Plan interest</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Writer</th>
                 <th className="px-4 py-3 font-medium">Consent</th>
@@ -109,7 +112,12 @@ export function ProducerPipeline({
                     <p className="text-xs text-muted-foreground">{row.email || "—"}</p>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {row.state || "—"} {row.zip}
+                    {row.county || row.state || "—"} {row.zip}
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {row.selectedPlan
+                      ? `${row.selectedPlan.metal} · ${row.selectedPlan.issuer}`
+                      : "—"}
                   </td>
                   <td className="px-4 py-3">{statusLabels[row.status]}</td>
                   <td className="px-4 py-3 text-muted-foreground">

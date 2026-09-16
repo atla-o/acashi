@@ -59,6 +59,15 @@ export function countyForZip(value: string) {
   return placeForZip(value)?.county ?? null;
 }
 
+export function zipForCounty(county: string) {
+  const normalized = normalizeWashingtonCounty(county);
+  if (!normalized) return "";
+  for (const [zip, place] of Object.entries(zipIndex)) {
+    if (place.county === normalized) return zip;
+  }
+  return "";
+}
+
 export function ratingAreaForCounty(county: string) {
   const normalized = normalizeWashingtonCounty(county);
   for (const [area, counties] of Object.entries(plansData.ratingAreas)) {

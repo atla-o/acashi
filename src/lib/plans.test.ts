@@ -5,6 +5,7 @@ import {
   planById,
   plansForCounty,
   premiumForCounty,
+  zipForCounty,
 } from "./plans.ts";
 
 test("maps a Seattle ZIP to King County", () => {
@@ -33,4 +34,10 @@ test("looks up a known plan id from the cached PUF subset", () => {
   assert.equal(found.name, plans[0].name);
   const premium = premiumForCounty(found, "King");
   assert.equal(typeof premium, "number");
+});
+
+test("finds a Washington ZIP for a county when the consumer only picks county", () => {
+  const zip = zipForCounty("King");
+  assert.ok(/^\d{5}$/.test(zip));
+  assert.equal(countyForZip(zip), "King");
 });

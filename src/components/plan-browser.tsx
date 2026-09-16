@@ -8,7 +8,6 @@ import { washingtonCounties } from "@/lib/application";
 import {
   allIssuers,
   allMetals,
-  countyForZip,
   formatUsd,
   landscapeNote,
   landscapePremiumAge,
@@ -17,6 +16,8 @@ import {
   planYear,
   plansForCounty,
   toPlanInterest,
+  zipFive,
+  zipForCounty,
   type LandscapePlan,
 } from "@/lib/plans";
 import { SELECTED_PLAN_STORAGE_KEY } from "@/lib/site";
@@ -74,7 +75,7 @@ export function PlanBrowser({
     const interest = toPlanInterest({
       plan,
       county: activeCounty,
-      zip: zip || countyForZip(activeCounty) || "",
+      zip: zipFive(zip) || zipForCounty(activeCounty),
     });
     window.localStorage.setItem(
       SELECTED_PLAN_STORAGE_KEY,

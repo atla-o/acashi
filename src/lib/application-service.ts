@@ -2,6 +2,7 @@ import {
   isApplicationId,
   normalizeApplicationStatus,
   parseApplicationDraft,
+  pipelineApplication,
   producerApplication,
   publicApplication,
   reduceApplicationSave,
@@ -152,7 +153,7 @@ export async function listProducerApplications(statusFilter?: string) {
       status: 200,
       body: {
         ok: true,
-        applications: applications.map(producerApplication),
+        applications: applications.map(pipelineApplication),
       },
     } satisfies JsonResult;
   } catch {

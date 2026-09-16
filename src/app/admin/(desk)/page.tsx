@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ProducerPipeline } from "@/components/producer-pipeline";
-import type { ApplicationRecord } from "@/lib/application";
+import { pipelineApplication } from "@/lib/application";
 import {
   listApplications,
   storeUnavailableMessage,
@@ -15,10 +15,10 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
   const agent = producerDefaults();
-  let applications: ApplicationRecord[] = [];
+  let applications: ReturnType<typeof pipelineApplication>[] = [];
   let loadError: string | null = null;
   try {
-    applications = await listApplications();
+    applications = (await listApplications()).map(pipelineApplication);
   } catch {
     loadError = storeUnavailableMessage();
   }
