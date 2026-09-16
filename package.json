@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start --port 43218",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/lib/application.test.ts"
+    "test": "node --experimental-strip-types --test src/lib/application.test.ts src/lib/producer-auth.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

@@ -1,6 +1,8 @@
-import { ApplicationForm } from "@/components/application-form";
+import { ApplicationWizard } from "@/components/application-wizard";
 import { Separator } from "@/components/ui/separator";
 import {
+  healthcareGov,
+  homeLicenseRegulator,
   parentBrand,
   productName,
   tagline,
@@ -24,9 +26,11 @@ export default function HomePage() {
               {tagline}
             </p>
             <p className="max-w-lg text-sm leading-7 text-muted-foreground">
-              Affordable Care Act marketplace coverage can come with a premium
-              tax credit. Acashi takes a short interest form and keeps a status
-              you can look up. It does not sell a plan or complete enrollment.
+              Washington households can get ACA coverage on HealthCare.gov, often
+              with a premium tax credit. Acashi is a producer application
+              portal: complete household data, retainable agent-assistance
+              consent, then handoff. It does not sell a plan or complete
+              enrollment on this site. Licensing path: {homeLicenseRegulator}.
             </p>
           </div>
           <aside className="self-end space-y-4 border border-foreground/10 p-6">
@@ -34,8 +38,8 @@ export default function HomePage() {
               In one sentence
             </p>
             <p className="text-sm leading-6">
-              Tell us who you are and roughly what your household looks like.
-              We track the file. You enroll on the official marketplace.
+              Save a complete HealthCare.gov file here. A licensed producer
+              enrolls you on the Washington FFM. This is not Covered California.
             </p>
           </aside>
         </div>
@@ -68,35 +72,81 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="border-b border-foreground/10">
+        <div className="mx-auto max-w-6xl px-5 py-16 md:py-20">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            Enrollment
+          </p>
+          <h2 className="font-heading mt-3 text-3xl tracking-tight">
+            Official Marketplace, licensed producer
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
+            Enrollment is applying, choosing a plan, and starting coverage on{" "}
+            <a href={healthcareGov} className="underline underline-offset-3">
+              HealthCare.gov
+            </a>
+            . A premium tax credit (APTC) may lower the monthly premium based
+            on household income — Acashi does not calculate or guarantee it.
+            A licensed producer assists using Devo’s existing entity. This site
+            does not quote plans.
+          </p>
+          <p className="mt-4 text-sm">
+            <a href="/enrollment" className="underline underline-offset-3">
+              How enrollment works
+            </a>
+            <span className="text-muted-foreground"> · </span>
+            <a href={healthcareGov} className="underline underline-offset-3">
+              HealthCare.gov
+            </a>
+          </p>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-5 py-16 md:py-20">
         <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
           Application
         </p>
         <h2 className="font-heading mt-3 text-4xl tracking-tight">
-          Bare-bones marketplace interest
+          Marketplace application
         </h2>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-          Income is approximate. Acashi does not compute a credit or check
-          eligibility. After submit, the status monitor uses your application
-          id and email.
+          Six short steps. State defaults to Washington with county and ZIP for
+          this state. Income is approximate. Acashi does not compute a credit,
+          quote a plan, or enroll you. Read{" "}
+          <a href="/enrollment" className="underline underline-offset-3">
+            how enrollment works
+          </a>{" "}
+          before you start, or go to{" "}
+          <a href={healthcareGov} className="underline underline-offset-3">
+            HealthCare.gov
+          </a>
+          .
         </p>
         <Separator className="my-10" />
         <div className="grid gap-12 lg:grid-cols-[minmax(0,22rem)_1fr]">
           <aside className="space-y-4 text-sm leading-7 text-muted-foreground">
             <p>
               Open enrollment and special enrollment windows are set by the
-              federal or state marketplace, not by Acashi. If you already know
-              you need a plan, start on HealthCare.gov while this file is in
-              review.
+              federal Marketplace, not by Acashi. Washington uses HealthCare.gov
+              (FFM), not Covered California. If you already know you need a
+              plan, start on HealthCare.gov while this file is in review.
             </p>
             <p>
-              Status moves received → in review → needs info → ready for
-              marketplace, or closed. Ready means the interest file is complete
-              enough for you to enroll officially. Closed is not a coverage
+              Pipeline: new → in progress → ready to submit → submitted →
+              effectuated, or closed. Ready to submit means a licensed agent
+              can hand the file to HealthSherpa or enroll manually. FFM
+              enrollment assist waits on PY2027 RCL. Closed is not a coverage
               denial.
             </p>
+            <p>
+              {parentBrand} uses its existing legal entity. A licensed
+              producer ({homeLicenseRegulator}; writing NPN on each file)
+              assists enrollment on HealthCare.gov. FFM assist waits on PY2027
+              RCL. Until then this portal captures a complete file and consent.
+              It does not pretend to be the exchange.
+            </p>
           </aside>
-          <ApplicationForm />
+          <ApplicationWizard />
         </div>
       </section>
     </div>

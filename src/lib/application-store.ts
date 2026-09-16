@@ -1,10 +1,30 @@
 import { Firestore, Timestamp } from "@google-cloud/firestore";
-import type { ApplicationDraft, ApplicationRecord } from "@/lib/application";
-import { emailsMatch, isApplicationId } from "@/lib/application";
+import type {
+  ApplicationDraft,
+  ApplicationRecord,
+  ApplicationStatus,
+} from "@/lib/application";
+import {
+  applicationRecordFromStored,
+  emailsMatch,
+  isApplicationId,
+  reduceApplicationSave,
+} from "@/lib/application";
 import { GCP_PROJECT_ID, gcp } from "@/lib/gcp";
+import { producerDefaults } from "@/lib/producer";
 
 let client: Firestore | null = null;
-const memory = new Map<string, ApplicationRecord>();
+
+const globalForStore = globalThis as typeof globalThis & {
+  __acashiApplications?: Map<string, ApplicationRecord>;
+};
+
+function memoryMap() {
+  if (!globalForStore.__acashiApplications) {
+    globalForStore.__acashiApplications = new Map<string, ApplicationRecord>();
+  }
+  return globalForStore.__acashiApplications;
+}
 
 function memoryStoreEnabled() {
   return process.env.ACASHI_STORE === "memory";
@@ -40,41 +60,37 @@ function toIso(value: unknown): string {
   return new Date().toISOString();
 }
 
+function toIsoOrNull(value: unknown): string | null {
+  if (value === null || value === undefined || value === "") return null;
+  return toIso(value);
+}
+
 function asRecord(
   id: string,
   data: Record<string, unknown>
 ): ApplicationRecord | null {
-  if (
-    typeof data.fullName !== "string" ||
-    typeof data.email !== "string" ||
-    typeof data.phone !== "string" ||
-    typeof data.state !== "string" ||
-    typeof data.zip !== "string" ||
-    typeof data.householdSize !== "number" ||
-    typeof data.incomeBand !== "string" ||
-    typeof data.preferredContactMethod !== "string" ||
-    typeof data.status !== "string"
-  ) {
-    return null;
-  }
-
-  return {
-    id,
-    fullName: data.fullName,
-    email: data.email,
-    phone: data.phone,
-    state: data.state as ApplicationRecord["state"],
-    zip: data.zip,
-    householdSize: data.householdSize,
-    incomeBand: data.incomeBand as ApplicationRecord["incomeBand"],
-    annualIncome: typeof data.annualIncome === "string" ? data.annualIncome : "",
-    preferredContactMethod:
-      data.preferredContactMethod as ApplicationRecord["preferredContactMethod"],
-    notes: typeof data.notes === "string" ? data.notes : "",
-    acceptedDisclaimer: data.acceptedDisclaimer === true,
-    status: data.status as ApplicationRecord["status"],
+  return applicationRecordFromStored(id, {
+    ...data,
     submittedAt: toIso(data.submittedAt),
     updatedAt: toIso(data.updatedAt ?? data.submittedAt),
+    completedAt: toIsoOrNull(data.completedAt),
+    disclaimerAcceptedAt: toIsoOrNull(data.disclaimerAcceptedAt),
+    agentAssistanceConsentAt: toIsoOrNull(data.agentAssistanceConsentAt),
+  });
+}
+
+function firestorePayload(record: ApplicationRecord) {
+  const data: Record<string, unknown> = { ...record };
+  delete data.id;
+  return {
+    ...data,
+    submittedAt: Timestamp.fromDate(new Date(record.submittedAt)),
+    updatedAt: Timestamp.fromDate(new Date(record.updatedAt)),
+    completedAt: record.completedAt
+      ? Timestamp.fromDate(new Date(record.completedAt))
+      : null,
+    source: "acashi-web",
+    projectId: gcp.projectId,
   };
 }
 
@@ -86,9 +102,7 @@ async function withTimeout<T>(promise: Promise<T>, ms = 8000) {
       new Promise<T>((_resolve, reject) => {
         timer = setTimeout(() => {
           reject(
-            new Error(
-              `Firestore in GCP project ${GCP_PROJECT_ID} timed out.`
-            )
+            new Error(`Firestore in GCP project ${GCP_PROJECT_ID} timed out.`)
           );
         }, ms);
       }),
@@ -98,38 +112,22 @@ async function withTimeout<T>(promise: Promise<T>, ms = 8000) {
   }
 }
 
-export async function writeApplication(
-  draft: ApplicationDraft
-): Promise<ApplicationRecord> {
-  const now = new Date().toISOString();
+export function resetMemoryStore() {
+  memoryMap().clear();
+}
 
+export async function putApplication(
+  record: ApplicationRecord
+): Promise<ApplicationRecord> {
   if (memoryStoreEnabled()) {
-    const id = crypto.randomUUID();
-    const record: ApplicationRecord = {
-      ...draft,
-      id,
-      status: "received",
-      submittedAt: now,
-      updatedAt: now,
-    };
-    memory.set(id, record);
+    memoryMap().set(record.id, record);
     return record;
   }
 
-  const receivedAt = Timestamp.now();
-  const ref = collection().doc();
   await withTimeout(
-    ref.set({
-      ...draft,
-      status: "received",
-      submittedAt: receivedAt,
-      updatedAt: receivedAt,
-      source: "acashi-web",
-      projectId: gcp.projectId,
-    })
+    collection().doc(record.id).set(firestorePayload(record), { merge: true })
   );
-
-  const stored = await readApplication(ref.id, draft.email);
+  const stored = await readApplicationById(record.id);
   if (!stored) {
     throw new Error("Acashi wrote the application but could not read it back.");
   }
@@ -140,19 +138,58 @@ export async function readApplication(
   id: string,
   email: string
 ): Promise<ApplicationRecord | null> {
+  const record = await readApplicationById(id);
+  if (!record || !emailsMatch(record.email, email)) return null;
+  return record;
+}
+
+export async function readApplicationById(
+  id: string
+): Promise<ApplicationRecord | null> {
   if (!isApplicationId(id)) return null;
 
   if (memoryStoreEnabled()) {
-    const record = memory.get(id);
-    if (!record || !emailsMatch(record.email, email)) return null;
-    return record;
+    return memoryMap().get(id) ?? null;
   }
 
   const snap = await withTimeout(collection().doc(id).get());
   if (!snap.exists) return null;
-  const record = asRecord(snap.id, (snap.data() ?? {}) as Record<string, unknown>);
-  if (!record || !emailsMatch(record.email, email)) return null;
-  return record;
+  return asRecord(snap.id, (snap.data() ?? {}) as Record<string, unknown>);
+}
+
+export async function listApplications(status?: ApplicationStatus) {
+  if (memoryStoreEnabled()) {
+    const rows = Array.from(memoryMap().values()).sort((a, b) =>
+      a.updatedAt < b.updatedAt ? 1 : -1
+    );
+    return status ? rows.filter((row) => row.status === status) : rows;
+  }
+
+  const query = collection().orderBy("updatedAt", "desc").limit(200);
+  const snap = await withTimeout(query.get());
+  const rows = snap.docs.flatMap((doc) => {
+    const record = asRecord(doc.id, (doc.data() ?? {}) as Record<string, unknown>);
+    return record ? [record] : [];
+  });
+  return status ? rows.filter((row) => row.status === status) : rows;
+}
+
+export async function writeApplication(
+  draft: ApplicationDraft
+): Promise<ApplicationRecord> {
+  const now = new Date().toISOString();
+  const reduced = reduceApplicationSave({
+    existing: null,
+    draft,
+    submit: true,
+    ip: "unknown",
+    now,
+    ...producerDefaults(),
+  });
+  if (!reduced.ok) {
+    throw new Error(reduced.error);
+  }
+  return putApplication(reduced.record);
 }
 
 export function storeUnavailableMessage() {

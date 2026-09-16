@@ -12,8 +12,8 @@ export default function NotFound() {
         That page is not here.
       </h1>
       <p className="text-sm leading-7 text-muted-foreground">
-        The surfaces in this product are the application form and the status
-        monitor.
+        The surfaces in this product are the application, enrollment
+        information, the status monitor, and the producer desk.
       </p>
       <div className="flex flex-wrap gap-3">
         <Link href="/" className={cn(buttonVariants({ size: "lg" }))}>

@@ -17,8 +17,14 @@ export default function StatusPage() {
       </h1>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
         Look up a file with its application id and the email used on the form.
-        After a successful submit, this browser keeps the id. Status is
-        received, in review, needs info, ready for marketplace, or closed.
+        After a successful submit, this browser keeps the id. Status is new, in
+        progress, ready to submit, submitted, effectuated, or closed. This is
+        not HealthCare.gov and not Covered California. Washington enrollment is
+        on the FFM. See{" "}
+        <a href="/enrollment" className="underline underline-offset-3">
+          how enrollment works
+        </a>
+        .
       </p>
       <div className="mt-12">
         <Suspense fallback={<StatusLoading />}>

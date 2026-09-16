@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { parseApplicationDraft, publicApplication } from "@/lib/application";
 import {
-  readApplication,
-  storeUnavailableMessage,
-  writeApplication,
-} from "@/lib/application-store";
+  createOrSaveApplication,
+  lookupPublicApplication,
+} from "@/lib/application-service";
+import { clientIp } from "@/lib/producer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,26 +19,51 @@ export async function POST(request: Request) {
     );
   }
 
-  const parsed = parseApplicationDraft(body);
-  if (!parsed.ok) {
+  try {
+    const result = await createOrSaveApplication({
+      body,
+      ip: clientIp(request),
+      submitDefault: false,
+    });
+    return NextResponse.json(result.body, { status: result.status });
+  } catch {
     return NextResponse.json(
-      { ok: false, error: "Check the required fields.", errors: parsed.errors },
+      { ok: false, error: "Acashi could not store this application. Try again." },
+      { status: 503 }
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Send a JSON application." },
+      { status: 400 }
+    );
+  }
+
+  const record = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+  if (typeof record.id !== "string" || !record.id.trim()) {
+    return NextResponse.json(
+      { ok: false, error: "Application id is required to save progress." },
       { status: 400 }
     );
   }
 
   try {
-    const application = await writeApplication(parsed.draft);
+    const result = await createOrSaveApplication({
+      body,
+      ip: clientIp(request),
+    });
+    return NextResponse.json(result.body, { status: result.status });
+  } catch {
     return NextResponse.json(
-      { ok: true, application: publicApplication(application) },
-      { status: 201 }
+      { ok: false, error: "Acashi could not store this application. Try again." },
+      { status: 503 }
     );
-  } catch (error) {
-    const message =
-      error instanceof Error && error.message.startsWith("Acashi wrote")
-        ? error.message
-        : storeUnavailableMessage();
-    return NextResponse.json({ ok: false, error: message }, { status: 503 });
   }
 }
 
@@ -48,28 +72,12 @@ export async function GET(request: Request) {
   const id = url.searchParams.get("id")?.trim() ?? "";
   const email = url.searchParams.get("email")?.trim() ?? "";
 
-  if (!id || !email) {
-    return NextResponse.json(
-      { ok: false, error: "Application id and email are required." },
-      { status: 400 }
-    );
-  }
-
   try {
-    const application = await readApplication(id, email);
-    if (!application) {
-      return NextResponse.json(
-        { ok: false, error: "No application matched that id and email." },
-        { status: 404 }
-      );
-    }
-    return NextResponse.json({
-      ok: true,
-      application: publicApplication(application),
-    });
+    const result = await lookupPublicApplication(id, email);
+    return NextResponse.json(result.body, { status: result.status });
   } catch {
     return NextResponse.json(
-      { ok: false, error: storeUnavailableMessage() },
+      { ok: false, error: "Acashi could not look up that application." },
       { status: 503 }
     );
   }
