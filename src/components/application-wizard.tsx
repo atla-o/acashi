@@ -15,6 +15,7 @@ import {
   employmentStatusLabels,
   employmentStatuses,
   homeLicenseState,
+  incomeBandFromAnnual,
   incomeBandLabels,
   incomeBands,
   isWashingtonCounty,
@@ -46,9 +47,11 @@ import {
   portalDisclaimer,
 } from "@/lib/legal";
 import { countyForZip, formatUsd, planById, toPlanInterest } from "@/lib/plans";
+import { parseAnnualIncome } from "@/lib/aptc";
 import {
   APPLICATION_DRAFT_STORAGE_KEY,
   APPLICATION_STORAGE_KEY,
+  FINDER_PREFS_STORAGE_KEY,
   SELECTED_PLAN_STORAGE_KEY,
 } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -90,6 +93,42 @@ function readLocalDraft(): { step: WizardStepId; fields: ApplicationDraft } | nu
     };
   } catch {
     return null;
+  }
+}
+
+function readFinderPrefs(): { income: string; people: number } | null {
+  try {
+    const raw = window.localStorage.getItem(FINDER_PREFS_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { income?: string; people?: number };
+    return {
+      income: typeof parsed.income === "string" ? parsed.income : "",
+      people:
+        typeof parsed.people === "number" && Number.isFinite(parsed.people)
+          ? Math.max(1, Math.min(8, Math.floor(parsed.people)))
+          : 1,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function applyFinderIncome(
+  next: ApplicationDraft,
+  incomeRaw: string,
+  people: number
+) {
+  const parsed = parseAnnualIncome(incomeRaw);
+  if (parsed !== null && !next.annualIncome) {
+    next.annualIncome = String(parsed);
+    if (!next.incomeBand) next.incomeBand = incomeBandFromAnnual(parsed);
+  }
+  if (people > next.householdMembers.length) {
+    const extra = people - next.householdMembers.length;
+    next.householdMembers = [
+      ...next.householdMembers,
+      ...Array.from({ length: extra }, () => newHouseholdMember("child")),
+    ];
   }
 }
 
@@ -176,6 +215,10 @@ export function ApplicationWizard() {
         const queryPlan = planById(searchParams.get("plan") ?? "");
         const queryCounty = searchParams.get("county") ?? "";
         const queryZip = searchParams.get("zip") ?? "";
+        const queryIncome = searchParams.get("income") ?? "";
+        const queryPeople = Number.parseInt(searchParams.get("people") ?? "", 10);
+        const finder = readFinderPrefs();
+        const finderIncome = queryIncome || finder?.income || "";
         if (lookup) {
           try {
             const params = new URLSearchParams(lookup);
@@ -200,6 +243,9 @@ export function ApplicationWizard() {
                 next.selectedPlan = interest;
                 if (!next.zip && interest.zip) next.zip = interest.zip;
                 if (!next.county && interest.county) next.county = interest.county;
+              }
+              if (!next.annualIncome && finderIncome) {
+                applyFinderIncome(next, finderIncome, next.householdMembers.length);
               }
               setFields(next);
               setSsnOnFile(payload.application.ssnOnFile);
@@ -244,6 +290,11 @@ export function ApplicationWizard() {
           if (next.zip && !next.county) {
             next.county = countyForZip(next.zip) ?? next.county;
           }
+          const peopleFromQuery =
+            Number.isFinite(queryPeople) && queryPeople >= 1
+              ? Math.min(8, queryPeople)
+              : next.householdMembers.length;
+          applyFinderIncome(next, finderIncome, peopleFromQuery);
           setFields(next);
           if (local?.step) {
             const index = wizardSteps.findIndex((item) => item.id === local.step);
@@ -957,7 +1008,7 @@ function IncomeStep({
       <Field
         label="Approximate annual household income"
         htmlFor="incomeBand"
-        hint="A band is enough. This is not a subsidy calculation or a guarantee."
+        hint="A band is enough for the file. Exact MAGI on the Marketplace finder is what estimates APTC; this step is still not an official determination."
         error={errors.incomeBand}
       >
         <select
@@ -981,7 +1032,7 @@ function IncomeStep({
       <Field
         label="Exact amount (optional)"
         htmlFor="annualIncome"
-        hint="Leave blank if the band is enough."
+        hint="Used on the Marketplace finder for the APTC estimate. Leave blank if the band is enough."
         error={errors.annualIncome}
       >
         <input

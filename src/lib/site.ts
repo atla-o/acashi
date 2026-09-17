@@ -21,3 +21,4 @@ export const nav = [
 export const APPLICATION_STORAGE_KEY = "acashi.application.v1";
 export const APPLICATION_DRAFT_STORAGE_KEY = "acashi.application.draft.v3";
 export const SELECTED_PLAN_STORAGE_KEY = "acashi.plan.v1";
+export const FINDER_PREFS_STORAGE_KEY = "acashi.finder.v1";
