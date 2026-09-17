@@ -261,13 +261,13 @@ function StatusCard({ application }: { application: PublicApplication }) {
               key={status}
               className={cn(
                 "bg-background px-3 py-4",
-                current && "bg-foreground text-background"
+                current && "font-medium"
               )}
             >
               <p
                 className={cn(
                   "text-[10px] uppercase tracking-[0.16em]",
-                  current ? "text-background/70" : "text-muted-foreground"
+                  current ? "text-black" : "text-muted-foreground"
                 )}
               >
                 {current ? "Now" : reached ? "Passed" : "Later"}

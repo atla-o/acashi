@@ -9,7 +9,10 @@ export function SiteNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex items-center gap-1 text-sm sm:gap-3" aria-label="Primary">
+    <nav
+      className="flex items-center justify-center gap-4 text-sm sm:gap-6"
+      aria-label="Primary"
+    >
       {nav.map((link) => {
         const active =
           link.href === "/"

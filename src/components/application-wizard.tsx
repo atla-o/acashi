@@ -458,13 +458,13 @@ export function ApplicationWizard() {
             key={item.id}
             className={cn(
               "bg-background px-3 py-3",
-              index === stepIndex && "bg-foreground text-background"
+              index === stepIndex && "font-medium"
             )}
           >
             <p
               className={cn(
                 "text-[10px] uppercase tracking-[0.16em]",
-                index === stepIndex ? "text-background/70" : "text-muted-foreground"
+                index === stepIndex ? "text-black" : "text-muted-foreground"
               )}
             >
               {index === stepIndex ? "Now" : index < stepIndex ? "Done" : "Later"}

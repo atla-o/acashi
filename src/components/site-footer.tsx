@@ -7,92 +7,92 @@ import {
   publicHost,
   shortDisclaimer,
   siblings,
+  tagline,
+  whatWeAre,
+  whatWeAreNot,
 } from "@/lib/legal";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-foreground/10 bg-foreground text-background">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-4">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-background/55">
-            Disclaimer
-          </p>
-          <p className="max-w-xl text-sm leading-6 text-background/80">
-            {shortDisclaimer}
-          </p>
+    <footer className="mt-auto border-t border-foreground/10 bg-white text-black">
+      <div className="mx-auto max-w-6xl space-y-8 px-5 py-10">
+        <div className="grid gap-8 md:grid-cols-3">
+          <div className="space-y-2">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-black/50">
+              {productName}
+            </p>
+            <p className="text-[11px] leading-5 text-black/70">{tagline}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-black/50">
+              What this is
+            </p>
+            <ul className="space-y-1.5 text-[11px] leading-5 text-black/70">
+              {whatWeAre.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="space-y-2">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-black/50">
+              What this is not
+            </p>
+            <ul className="space-y-1.5 text-[11px] leading-5 text-black/70">
+              {whatWeAreNot.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
         </div>
-        <div className="space-y-4 text-sm">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-background/55">
-            {productName}
-          </p>
-          <ul className="space-y-2 text-background/80">
-            <li>
-              <Link href="/" className="hover:text-background">
-                Marketplace
-              </Link>
-            </li>
-            <li>
-              <Link href="/apply" className="hover:text-background">
-                Apply
-              </Link>
-            </li>
-            <li>
-              <Link href="/enrollment" className="hover:text-background">
-                Enrollment
-              </Link>
-            </li>
-            <li>
-              <Link href="/account" className="hover:text-background">
-                Account
-              </Link>
-            </li>
-            <li>
-              <Link href="/admin" className="hover:text-background">
-                Admin
-              </Link>
-            </li>
-            <li>
-              <a href={healthplanfinder} className="hover:text-background">
-                Healthplanfinder
-              </a>
-            </li>
-          </ul>
-          <p className="text-[11px] uppercase tracking-[0.2em] text-background/55">
-            Devo siblings
-          </p>
-          <ul className="space-y-1 text-background/80">
-            {siblings.map((sibling) => (
-              <li key={sibling.name}>
-                {sibling.name}
-                <span className="text-background/50"> — {sibling.note}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="pt-4 text-xs leading-5 text-background/50">
-            A {parentBrand} product. Mark{" "}
-            <a
-              href={familyUrl}
-              className="underline underline-offset-3 hover:text-background/80"
-            >
-              o
-            </a>
-            . Public family:{" "}
-            <a
-              href={familyUrl}
-              className="underline underline-offset-3 hover:text-background/80"
-            >
-              devoutshaman.com
-            </a>
-            . Public host:{" "}
-            <a
-              href={publicHost}
-              className="underline underline-offset-3 hover:text-background/80"
-            >
-              acashi.devoutshaman.com
-            </a>
-            .
-          </p>
+
+        <p className="text-[11px] leading-5 text-black/60">{shortDisclaimer}</p>
+
+        <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-black/75">
+          <Link href="/" className="hover:text-black">
+            Marketplace
+          </Link>
+          <Link href="/apply" className="hover:text-black">
+            Apply
+          </Link>
+          <Link href="/enrollment" className="hover:text-black">
+            Enrollment
+          </Link>
+          <Link href="/account" className="hover:text-black">
+            Account
+          </Link>
+          <Link href="/admin" className="hover:text-black">
+            Admin
+          </Link>
+          <a href={healthplanfinder} className="hover:text-black">
+            Healthplanfinder
+          </a>
         </div>
+
+        <p className="text-[10px] leading-4 text-black/45">
+          {siblings.map((sibling) => sibling.name).join(" · ")}. A {parentBrand}{" "}
+          product. Mark{" "}
+          <a
+            href={familyUrl}
+            className="underline underline-offset-2 hover:text-black/70"
+          >
+            o
+          </a>
+          .{" "}
+          <a
+            href={familyUrl}
+            className="underline underline-offset-2 hover:text-black/70"
+          >
+            devoutshaman.com
+          </a>
+          .{" "}
+          <a
+            href={publicHost}
+            className="underline underline-offset-2 hover:text-black/70"
+          >
+            acashi.devoutshaman.com
+          </a>
+          .
+        </p>
       </div>
     </footer>
   );
