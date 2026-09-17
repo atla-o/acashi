@@ -17,7 +17,7 @@ Siblings: Phenomatch, Antiporn, Lessfret, Lightround, Acashi. Holding lander: at
 
 WA Healthplanfinder producer portal — browse plans → apply (income/SSN/DOB/address) → account + admin; OIC Disability license path; **not** HealthCare.gov.
 
-Acashi is Affordable Care Act Marketplace coverage under Devo, focused on Washington Healthplanfinder (WAHBE). Interest portal only: not Healthplanfinder, not WAHBE, not HealthCare.gov, and not an EDE/web-broker. Washington is a state-based Marketplace; consumers enroll on Healthplanfinder. Acashi does not quote personalized APTC, bind a plan, or complete enrollment.
+Acashi is Affordable Care Act Marketplace coverage under Devo, focused on Washington Healthplanfinder (WAHBE). Interest portal only: not Healthplanfinder, not WAHBE, not HealthCare.gov, and not an EDE/web-broker. Washington is a state-based Marketplace; consumers enroll on Healthplanfinder. Acashi does not issue an official APTC determination, bind a plan, or complete enrollment. The Marketplace finder estimates APTC from public IRS/HHS tables.
 
 Producer path: Washington OIC licensing. Devo uses the existing legal entity; agent name and NPN on each application. Export is for licensed-producer handoff to Healthplanfinder — not FFM RCL / HealthCare.gov as the primary path.
 
@@ -36,7 +36,7 @@ Use **cloud agents** for web app work, GCP, GitHub, and documentation. Do not de
 
 ## Surfaces (core)
 
-- `/` Marketplace browse (ZIP/county, PY2026 plans)
+- `/` Marketplace browse (ZIP + income, PY2026 plans, estimated APTC)
 - `/apply` Application (name, DOB, address, income, SSN, household, consent)
 - `/account` Consumer status; `/admin` producer desk + export
 

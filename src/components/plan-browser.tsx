@@ -1,30 +1,68 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Field, fieldClass } from "@/components/field";
 import { Button } from "@/components/ui/button";
-import { washingtonCounties } from "@/lib/application";
 import {
-  allIssuers,
-  allMetals,
+  estimateSubsidy,
+  netPremiumAfterAptc,
+  parseAnnualIncome,
+  type SubsidyEstimate,
+} from "@/lib/aptc";
+import {
   formatUsd,
   landscapeNote,
   landscapePremiumAge,
+  metalRank,
   placeForZip,
   planSource,
   planYear,
   plansForCounty,
+  secondLowestSilverPremium,
   toPlanInterest,
   zipFive,
   zipForCounty,
   type LandscapePlan,
 } from "@/lib/plans";
-import { SELECTED_PLAN_STORAGE_KEY } from "@/lib/site";
+import { FINDER_PREFS_STORAGE_KEY, SELECTED_PLAN_STORAGE_KEY } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_ZIP = "98101";
-const DEFAULT_COUNTY = "King";
+const HOUSEHOLD_SIZES = [1, 2, 3, 4, 5, 6, 7, 8] as const;
+
+type FinderPrefs = {
+  zip: string;
+  county: string;
+  income: string;
+  people: number;
+};
+
+type PricedPlan = LandscapePlan & {
+  premium: number | null;
+  netPremium: number | null;
+};
+
+function readFinderPrefs(): FinderPrefs | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(FINDER_PREFS_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<FinderPrefs>;
+    const people =
+      typeof parsed.people === "number" && Number.isFinite(parsed.people)
+        ? Math.max(1, Math.min(8, Math.floor(parsed.people)))
+        : 1;
+    return {
+      zip: typeof parsed.zip === "string" ? parsed.zip : "",
+      county: typeof parsed.county === "string" ? parsed.county : "",
+      income: typeof parsed.income === "string" ? parsed.income : "",
+      people,
+    };
+  } catch {
+    return null;
+  }
+}
 
 export function PlanBrowser({
   initialZip = "",
@@ -36,24 +74,81 @@ export function PlanBrowser({
   const router = useRouter();
   const [zip, setZip] = useState(initialZip);
   const [county, setCounty] = useState(initialCounty);
+  const [income, setIncome] = useState("");
+  const [people, setPeople] = useState(1);
   const [metal, setMetal] = useState("all");
   const [issuer, setIssuer] = useState("all");
   const [zipError, setZipError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
   const activeCounty = county;
+  const place = placeForZip(zip);
+  const annualIncome = parseAnnualIncome(income);
+  const benchmark = activeCounty ? secondLowestSilverPremium(activeCounty) : null;
+  const estimate = useMemo(
+    () =>
+      estimateSubsidy({
+        annualIncome,
+        householdSize: people,
+        benchmarkMonthlyPerEnrollee: benchmark,
+      }),
+    [annualIncome, people, benchmark]
+  );
+
   const plans = useMemo(
     () => (activeCounty ? plansForCounty(activeCounty) : []),
     [activeCounty]
   );
-  const filtered = useMemo(
-    () =>
-      plans.filter((plan) => {
+  const filtered = useMemo(() => {
+    const rows: PricedPlan[] = plans
+      .filter((plan) => {
         if (metal !== "all" && plan.metal !== metal) return false;
         if (issuer !== "all" && plan.issuer !== issuer) return false;
         return true;
-      }),
-    [plans, metal, issuer]
-  );
+      })
+      .map((plan) => ({
+        ...plan,
+        netPremium: netPremiumAfterAptc({
+          listPremium: plan.premium,
+          metal: plan.metal,
+          estimate,
+        }),
+      }));
+    return rows.sort((a, b) => {
+      if (estimate.eligible) {
+        const net = (a.netPremium ?? 1e9) - (b.netPremium ?? 1e9);
+        if (net !== 0) return net;
+      }
+      const metalCmp = metalRank(a.metal) - metalRank(b.metal);
+      if (metalCmp !== 0) return metalCmp;
+      const prem = (a.premium ?? 1e9) - (b.premium ?? 1e9);
+      if (prem !== 0) return prem;
+      return a.name.localeCompare(b.name);
+    });
+  }, [plans, metal, issuer, estimate]);
+
+  useEffect(() => {
+    const prefs = readFinderPrefs();
+    if (!initialZip && prefs?.zip) applyZip(prefs.zip);
+    if (!initialCounty && prefs?.county && !prefs.zip) setCounty(prefs.county);
+    if (prefs?.income) setIncome(prefs.income);
+    if (prefs?.people) setPeople(prefs.people);
+    setHydrated(true);
+    // Prefs hydrate once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem(
+        FINDER_PREFS_STORAGE_KEY,
+        JSON.stringify({ zip, county, income, people } satisfies FinderPrefs)
+      );
+    } catch {
+      /* ignore quota */
+    }
+  }, [hydrated, zip, county, income, people]);
 
   function applyZip(value: string) {
     setZip(value);
@@ -62,16 +157,16 @@ export function PlanBrowser({
       setZipError(null);
       return;
     }
-    const place = placeForZip(five);
-    if (!place) {
+    const nextPlace = placeForZip(five);
+    if (!nextPlace) {
       setZipError("That ZIP is not in the Washington landscape file.");
       return;
     }
     setZipError(null);
-    setCounty(place.county);
+    setCounty(nextPlace.county);
   }
 
-  function selectPlan(plan: LandscapePlan & { premium: number | null }) {
+  function selectPlan(plan: PricedPlan) {
     const interest = toPlanInterest({
       plan,
       county: activeCounty,
@@ -86,6 +181,8 @@ export function PlanBrowser({
       county: interest.county,
     });
     if (interest.zip) params.set("zip", interest.zip);
+    if (annualIncome !== null) params.set("income", String(annualIncome));
+    params.set("people", String(people));
     router.push(`/apply?${params.toString()}`);
   }
 
@@ -95,7 +192,11 @@ export function PlanBrowser({
         <Field
           label="ZIP"
           htmlFor="planZip"
-          hint="Washington ZIP. We map it to a county from public postal data."
+          hint={
+            place
+              ? `${place.city}, ${place.county} County — county is taken from this ZIP.`
+              : "Washington ZIP. County is taken from public postal data."
+          }
           error={zipError ?? undefined}
         >
           <input
@@ -108,37 +209,57 @@ export function PlanBrowser({
             onChange={(event) => applyZip(event.target.value)}
           />
         </Field>
-        <Field
-          label="County"
-          htmlFor="planCounty"
-          hint="Or pick a county if you do not want to use ZIP."
-        >
-          <select
-            id="planCounty"
-            value={activeCounty}
-            className={fieldClass()}
-            onChange={(event) => {
-              setCounty(event.target.value);
-              setZipError(null);
-            }}
+        <div className="grid gap-6 sm:grid-cols-[1fr_auto]">
+          <Field
+            label="Annual household income"
+            htmlFor="planIncome"
+            hint="Expected 2026 MAGI. Compared to 2025 FPL and the 2026 IRS applicable-percentage table, including the 400% FPL cap."
           >
-            <option value="">Select county</option>
-            {washingtonCounties.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </Field>
+            <input
+              id="planIncome"
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="32000"
+              value={income}
+              className={fieldClass()}
+              onChange={(event) => setIncome(event.target.value)}
+            />
+          </Field>
+          <Field
+            label="People"
+            htmlFor="planPeople"
+            hint="Tax household."
+          >
+            <select
+              id="planPeople"
+              value={people}
+              className={fieldClass()}
+              onChange={(event) => setPeople(Number.parseInt(event.target.value, 10) || 1)}
+            >
+              {HOUSEHOLD_SIZES.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
       </div>
 
       {!activeCounty ? (
         <p className="text-sm leading-7 text-muted-foreground">
-          Enter a Washington ZIP or choose {DEFAULT_COUNTY} County to scroll
-          PY{planYear} medical plans. Example: {DEFAULT_ZIP}.
+          Enter a Washington ZIP to scroll PY{planYear} medical plans. Income
+          shows whether a premium tax credit is legally available and what the
+          listed plans would cost after that estimate. Example: {DEFAULT_ZIP}.
         </p>
       ) : (
         <>
+          <SubsidyBanner
+            estimate={estimate}
+            benchmark={benchmark}
+            county={activeCounty}
+          />
+
           <div className="flex flex-wrap gap-3">
             <select
               aria-label="Metal level"
@@ -147,11 +268,13 @@ export function PlanBrowser({
               onChange={(event) => setMetal(event.target.value)}
             >
               <option value="all">All metals</option>
-              {allMetals.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
+              {Array.from(new Set(plans.map((plan) => plan.metal)))
+                .sort((a, b) => metalRank(a) - metalRank(b))
+                .map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
             </select>
             <select
               aria-label="Issuer"
@@ -160,11 +283,13 @@ export function PlanBrowser({
               onChange={(event) => setIssuer(event.target.value)}
             >
               <option value="all">All issuers</option>
-              {allIssuers.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
+              {Array.from(new Set(plans.map((plan) => plan.issuer)))
+                .sort((a, b) => a.localeCompare(b))
+                .map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
             </select>
             <p className="self-center text-xs uppercase tracking-[0.16em] text-muted-foreground">
               {filtered.length} plan{filtered.length === 1 ? "" : "s"} ·{" "}
@@ -173,7 +298,9 @@ export function PlanBrowser({
           </div>
 
           <p className="text-sm leading-7 text-muted-foreground">
-            {landscapeNote} Source: {planSource}
+            {landscapeNote} Source: {planSource} Estimated net premiums use the
+            second-lowest-cost Silver in this county as the APTC benchmark. Not
+            an official Healthplanfinder determination.
           </p>
 
           {filtered.length === 0 ? (
@@ -205,10 +332,35 @@ export function PlanBrowser({
                     <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
                       <div>
                         <dt className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                          Age {landscapePremiumAge} premium
+                          {estimate.eligible && plan.metal !== "Catastrophic"
+                            ? "Estimated after APTC"
+                            : `Age ${landscapePremiumAge} premium`}
                         </dt>
-                        <dd>{formatUsd(plan.premium)} / mo</dd>
+                        <dd>
+                          {formatUsd(
+                            estimate.eligible && plan.metal !== "Catastrophic"
+                              ? plan.netPremium
+                              : plan.premium
+                          )}{" "}
+                          / mo
+                        </dd>
                       </div>
+                      {estimate.eligible && plan.metal !== "Catastrophic" ? (
+                        <div>
+                          <dt className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                            Age {landscapePremiumAge} list rate
+                          </dt>
+                          <dd>{formatUsd(plan.premium)} / mo</dd>
+                        </div>
+                      ) : null}
+                      {plan.metal === "Catastrophic" && estimate.eligible ? (
+                        <div>
+                          <dt className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                            APTC
+                          </dt>
+                          <dd>Does not apply</dd>
+                        </div>
+                      ) : null}
                       <div>
                         <dt className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
                           Individual deductible
@@ -230,6 +382,55 @@ export function PlanBrowser({
           )}
         </>
       )}
+    </div>
+  );
+}
+
+function SubsidyBanner({
+  estimate,
+  benchmark,
+  county,
+}: {
+  estimate: SubsidyEstimate;
+  benchmark: number | null;
+  county: string;
+}) {
+  return (
+    <div className="space-y-2 border border-foreground/10 px-4 py-4">
+      <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+        {estimate.label}
+      </p>
+      {estimate.reason === "aptc" && estimate.eligible ? (
+        <dl className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <div>
+            <dt className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              Estimated APTC
+            </dt>
+            <dd>{formatUsd(estimate.aptcMonthlyHousehold)} / mo household</dd>
+          </div>
+          <div>
+            <dt className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              Per listed enrollee
+            </dt>
+            <dd>{formatUsd(estimate.aptcMonthlyPerEnrollee)} / mo</dd>
+          </div>
+          <div>
+            <dt className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              Required contribution
+            </dt>
+            <dd>{formatUsd(estimate.expectedMonthly)} / mo</dd>
+          </div>
+          <div>
+            <dt className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              {county} 2nd-lowest Silver
+            </dt>
+            <dd>
+              {formatUsd(benchmark)} / mo age {landscapePremiumAge}
+            </dd>
+          </div>
+        </dl>
+      ) : null}
+      <p className="text-sm leading-7 text-muted-foreground">{estimate.detail}</p>
     </div>
   );
 }

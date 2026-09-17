@@ -2,7 +2,7 @@
 
 Acashi is **Affordable Care Act Marketplace coverage** under **Devo** (lateral health), focused on **Washington Healthplanfinder** (WAHBE). It is an interest portal: browse public plan landscape data, file an application (name, DOB, address, income, SSN, household), track status, and an **Admin** producer desk.
 
-It is **not Healthplanfinder**, **not WAHBE**, **not HealthCare.gov**, and not an EDE/web-broker. Washington is a **state-based Marketplace**. Consumers enroll on [Healthplanfinder](https://www.wahealthplanfinder.org). Plan selection on this site is interest only. Acashi does not quote a personalized APTC, bind a plan, or complete enrollment.
+It is **not Healthplanfinder**, **not WAHBE**, **not HealthCare.gov**, and not an EDE/web-broker. Washington is a **state-based Marketplace**. Consumers enroll on [Healthplanfinder](https://www.wahealthplanfinder.org). Plan selection on this site is interest only. Acashi does not issue an official APTC determination, bind a plan, or complete enrollment. The Marketplace finder estimates a 2026 premium tax credit from public IRS/HHS tables and the county’s second-lowest-cost Silver landscape premium.
 
 **Producer path:** Founder licensing is **Washington OIC**. Devo uses the existing legal entity; agent name and NPN live on each application (env defaults, editable on Admin). Export is for licensed-producer handoff to Healthplanfinder — not FFM RCL / HealthCare.gov as the primary path.
 
@@ -16,7 +16,7 @@ Publisher identity: **Devo / atla-o**. Public GitHub: [github.com/atla-o/acashi]
 
 | Path | Purpose |
 | --- | --- |
-| `/` | Marketplace: pick a Washington ZIP or county, scroll PY2026 medical plans |
+| `/` | Marketplace: pick a Washington ZIP and household income, scroll PY2026 medical plans with estimated net premiums |
 | `/apply` | Application: name, DOB, address, income, SSN, household, consent |
 | `/enrollment` | What enrollment is, APTC at a high level, Healthplanfinder path |
 | `/account` | Consumer account / status monitor (application id + email). `/status` redirects here |
@@ -35,7 +35,7 @@ Publisher identity: **Devo / atla-o**. Public GitHub: [github.com/atla-o/acashi]
 
 ## Three-step flow
 
-1. **Browse** — ZIP or county. Scroll metal, issuer, age-40 landscape premium, and individual deductible from CMS Washington SBE QHP PUF PY2026 (cached in `src/data/`). Premiums are public list rates, not a personalized APTC quote. “Save interest” is not enrollment.
+1. **Browse** — ZIP and annual household income. Scroll metal, issuer, age-40 landscape premium, estimated premium after APTC, and individual deductible from CMS Washington SBE QHP PUF PY2026 (cached in `src/data/`). The estimate uses 2025 HHS FPL, IRS Rev. Proc. 2025-25 (400% FPL cap for 2026), Washington Apple Health through 138% FPL, and the county’s second-lowest-cost Silver. It is not an official Healthplanfinder determination. “Save interest” is not enrollment.
 2. **Apply** — name, date of birth, street address, income, SSN, household (already started), coverage, and agent-assistance consent. SSN is encrypted at rest (`ssnCiphertext`), never written to `localStorage` or URLs, and masked on the consumer account page.
 3. **Account + Admin** — consumer status on `/account`. **Admin** is the producer desk: login, pipeline, open file, status, export.
 

@@ -10,7 +10,7 @@ export const tagline =
   "Washington Healthplanfinder interest portal. Browse public plan landscape data, save a file, and finish enrollment on the state Marketplace.";
 
 export const portalDisclaimer =
-  "Acashi is not Washington Healthplanfinder, not the Washington Health Benefit Exchange (WAHBE), and not HealthCare.gov. Washington is a state-based Marketplace: consumers enroll on Healthplanfinder (wahealthplanfinder.org). Plan premiums shown here are CMS public landscape / Exchange PUF data for plan year 2026 — not a personalized APTC quote, not a binder, and not an official Exchange determination. Selecting a plan records interest only. A licensed producer (Washington OIC) assists; final enrollment happens on Healthplanfinder. This site does not scrape Healthplanfinder, calculate official APTC, or act as an EDE/web-broker.";
+  "Acashi is not Washington Healthplanfinder, not the Washington Health Benefit Exchange (WAHBE), and not HealthCare.gov. Washington is a state-based Marketplace: consumers enroll on Healthplanfinder (wahealthplanfinder.org). Plan premiums shown here start from CMS public landscape / Exchange PUF data for plan year 2026. When you enter income, Acashi estimates APTC from the 2025 HHS poverty guidelines and IRS Rev. Proc. 2025-25 (including the 400% FPL cap). That estimate is not an official Exchange determination, not a binder, and not enrollment. Selecting a plan records interest only. A licensed producer (Washington OIC) assists; final enrollment happens on Healthplanfinder. This site does not scrape Healthplanfinder or act as an EDE/web-broker.";
 
 export const shortDisclaimer = portalDisclaimer;
 
@@ -23,13 +23,13 @@ export {
 
 export const whatWeAre = [
   "A Devo lateral-health portal for Washington households who want ACA coverage on Washington Healthplanfinder and, when eligible, a premium tax credit.",
-  "A three-step flow: browse public PY2026 medical plans by ZIP or county, apply with name, date of birth, address, income, SSN, and household, then watch status.",
+  "A three-step flow: browse public PY2026 medical plans by ZIP and household income, apply with name, date of birth, address, income, SSN, and household, then watch status.",
   "An account monitor for consumers and an Admin desk for a Washington OIC-licensed producer (pipeline, file, status, export).",
 ];
 
 export const whatWeAreNot = [
   "Not Healthplanfinder, not WAHBE, not HealthCare.gov, and not an EDE/web-broker.",
-  "Not a personalized quote, carrier recommendation, official APTC calculation, or guarantee of eligibility.",
+  "Not a carrier recommendation, official Healthplanfinder APTC determination, or guarantee of eligibility.",
   "Not a determination of special enrollment, Medicaid, Apple Health, CHIP, or employer coverage.",
   "Not complete until a licensed producer helps you enroll on Healthplanfinder.",
 ];
@@ -37,7 +37,7 @@ export const whatWeAreNot = [
 export const enrollmentPath = [
   {
     title: "Browse",
-    body: "Pick a Washington ZIP or county and scroll public plan landscape data (metal, issuer, premium indicator, deductible). Selection is interest only.",
+    body: "Pick a Washington ZIP and household income, then scroll public plan landscape data with estimated net premiums after APTC. Selection is interest only.",
   },
   {
     title: "Apply",
@@ -52,11 +52,11 @@ export const enrollmentPath = [
 export const enrollmentInfo = [
   {
     title: "What enrollment is",
-    body: "Enrollment means applying for an ACA health plan for a coverage year, choosing a plan on Washington Healthplanfinder, and having that plan take effect with an issuer. Acashi collects a complete interest file and consent so a licensed producer can help. This site does not enroll you, bind coverage, quote a net premium after APTC, or issue a member ID.",
+    body: "Enrollment means applying for an ACA health plan for a coverage year, choosing a plan on Washington Healthplanfinder, and having that plan take effect with an issuer. Acashi collects a complete interest file and consent so a licensed producer can help. This site does not enroll you, bind coverage, issue a member ID, or replace an official Healthplanfinder APTC determination.",
   },
   {
     title: "Premium tax credits (APTC)",
-    body: "Many Marketplace applicants qualify for an advance premium tax credit based on expected household income and family size. The credit can lower the monthly premium. Cost-sharing reductions may also apply on some silver plans when income is in range. Acashi asks for income so a producer has context. It does not calculate a credit, check IRS data, or guarantee a subsidy. Landscape premiums are public list rates, not your price after a credit.",
+    body: "Many Marketplace applicants qualify for an advance premium tax credit based on expected household income and family size. For 2026 the IRA enhanced credits have expired, so the credit is again limited to household income at or below 400% of FPL. Washington Apple Health generally covers MAGI through 138% FPL, which blocks Marketplace APTC. The Marketplace finder estimates a credit from those legal limits, the IRS applicable-percentage table, and the county’s second-lowest-cost Silver landscape premium, and it can bring a listed premium to $0. That is not an official Healthplanfinder quote, does not check IRS data, and does not guarantee a subsidy.",
   },
   {
     title: "Washington uses Healthplanfinder",

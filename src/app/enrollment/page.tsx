@@ -29,7 +29,7 @@ export default function EnrollmentPage() {
           Healthplanfinder
         </a>
         , the state-based Marketplace. Acashi is not the Exchange, not
-        HealthCare.gov, and not a quote tool. A licensed producer assists.{" "}
+        HealthCare.gov, and not an official quote. A licensed producer assists.{" "}
         {parentBrand} uses its existing legal entity; licensing for this market
         is {homeLicenseRegulator}.
       </p>

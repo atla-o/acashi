@@ -9,6 +9,7 @@ import {
   emptyApplicationDraft,
   homeLicenseState,
   householdMembersFromStored,
+  incomeBandFromAnnual,
   isApplicationId,
   isWashingtonZip,
   normalizeApplicationStatus,
@@ -57,6 +58,14 @@ const valid = {
   acceptedDisclaimer: true,
   agentAssistanceConsent: true,
 };
+
+test("maps an exact MAGI figure onto the application income band", () => {
+  assert.equal(incomeBandFromAnnual(null), "");
+  assert.equal(incomeBandFromAnnual(24999), "under_25000");
+  assert.equal(incomeBandFromAnnual(32000), "25000_49999");
+  assert.equal(incomeBandFromAnnual(62000), "50000_74999");
+  assert.equal(incomeBandFromAnnual(150000), "150000_or_more");
+});
 
 test("accepts a complete application", () => {
   const parsed = parseApplicationDraft(valid);

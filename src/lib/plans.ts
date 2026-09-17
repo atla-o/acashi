@@ -101,6 +101,17 @@ export function plansForCounty(county: string) {
     });
 }
 
+/** Second-lowest Silver age-40 landscape premium in the county (APTC benchmark). */
+export function secondLowestSilverPremium(county: string): number | null {
+  const silvers = plansForCounty(county)
+    .filter((plan) => plan.metal === "Silver" && typeof plan.premium === "number")
+    .map((plan) => plan.premium as number)
+    .sort((a, b) => a - b);
+  if (silvers.length === 0) return null;
+  if (silvers.length === 1) return silvers[0];
+  return silvers[1];
+}
+
 export function planById(id: string) {
   return catalog.find((plan) => plan.id === id) ?? null;
 }

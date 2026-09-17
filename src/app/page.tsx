@@ -9,8 +9,10 @@ export default function HomePage() {
           Find a health plan
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Washington ZIP or county. Landscape list rates — not a personalized
-          APTC quote, not enrollment. Finish on{" "}
+          Washington ZIP plus household income. List rates update with an
+          estimated premium tax credit from 2025 FPL and the 2026 IRS table —
+          not an official Healthplanfinder determination, not enrollment. Finish
+          on{" "}
           <a href={healthplanfinder} className="underline underline-offset-3">
             Healthplanfinder
           </a>

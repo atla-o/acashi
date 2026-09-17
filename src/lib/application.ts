@@ -122,6 +122,20 @@ export const incomeBandLabels: Record<IncomeBand, string> = {
   prefer_not: "Prefer not to say",
 };
 
+export function incomeBandFromAnnual(
+  amount: number | null | undefined
+): IncomeBand | "" {
+  if (amount === null || amount === undefined || !Number.isFinite(amount) || amount < 0) {
+    return "";
+  }
+  if (amount < 25000) return "under_25000";
+  if (amount < 50000) return "25000_49999";
+  if (amount < 75000) return "50000_74999";
+  if (amount < 100000) return "75000_99999";
+  if (amount < 150000) return "100000_149999";
+  return "150000_or_more";
+}
+
 export const relationships = [
   "self",
   "spouse",
