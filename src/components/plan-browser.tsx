@@ -115,10 +115,12 @@ export function PlanBrowser({
         }),
       }));
     return rows.sort((a, b) => {
+      if (estimate.eligible) {
+        const net = (a.netPremium ?? 1e9) - (b.netPremium ?? 1e9);
+        if (net !== 0) return net;
+      }
       const metalCmp = metalRank(a.metal) - metalRank(b.metal);
       if (metalCmp !== 0) return metalCmp;
-      const net = (a.netPremium ?? 1e9) - (b.netPremium ?? 1e9);
-      if (net !== 0) return net;
       const prem = (a.premium ?? 1e9) - (b.premium ?? 1e9);
       if (prem !== 0) return prem;
       return a.name.localeCompare(b.name);
@@ -296,7 +298,7 @@ export function PlanBrowser({
           </div>
 
           <p className="text-sm leading-7 text-muted-foreground">
-            {landscapeNote} Source: {planSource}. Estimated net premiums use the
+            {landscapeNote} Source: {planSource} Estimated net premiums use the
             second-lowest-cost Silver in this county as the APTC benchmark. Not
             an official Healthplanfinder determination.
           </p>
