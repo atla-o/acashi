@@ -156,8 +156,8 @@ function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "bg-background px-3 py-2 text-xs",
-        active && "bg-foreground text-background"
+        "border border-transparent bg-background px-3 py-2 text-xs",
+        active && "border-foreground font-medium"
       )}
     >
       {label}
