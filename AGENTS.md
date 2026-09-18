@@ -9,6 +9,16 @@ Priority order for every task unless Devo says otherwise:
 2. Black text on **white** backgrounds always — never follow system dark mode / white-on-black.
 3. Ship via merge to `main` (Cloud Run Actions). Do not deploy from the agent unless Devo explicitly says push/ship/merge and deploy.
 
+## Live UI preview
+
+Whenever a UI change is **not yet on `main`** (feature branch, local/dev server, draft or unmerged PR — anything that is not production):
+
+- Run the app (Next.js on **port 43218**).
+- Give Devo a **clickable live preview URL** he can open inside Cursor: the Cloud Agent forwarded port, tunnel, or preview URL Cursor exposes for that running app.
+- Paste the **full URL** in the reply (for this app, usually `http://127.0.0.1:43218` plus any tunnel/preview URL). Screenshots and recordings are extra. They do not replace the live link.
+
+Do this on every turn while UI is in flux. Do not wait until the PR is merged.
+
 Parent: Devo (lateral health). Publisher: atla-o. GCP app data: project `devo-holding`. Public hosts on `*.devoutshaman.com` (Cloudflare DNS-only → Cloud Run).
 
 Siblings: Phenomatch, Antiporn, Lessfret, Lightround, Acashi. Holding lander: atla-o/devo → devoutshaman.com.
