@@ -1,0 +1,95 @@
+name: Map humanehealth domain
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: devo-holding
+          workload_identity_provider: projects/384302503084/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-cloud-run-deploy@devo-holding.iam.gserviceaccount.com
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Create Cloud Run domain mapping
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          set +e
+          gcloud components install beta --quiet
+          echo "=== auth list ==="
+          gcloud auth list --filter=status:ACTIVE --format='value(account)'
+          echo "=== verified domains ==="
+          gcloud domains list-user-verified --format=yaml
+          echo "verified_exit:$?"
+          echo "=== phenomatch mapping ==="
+          gcloud beta run domain-mappings describe \
+            --domain=phenomatch.devoutshaman.com \
+            --region=us-west1 \
+            --project=devo-holding \
+            --format="yaml(metadata.annotations,metadata.labels,spec,status.conditions,status.resourceRecords)"
+          echo "phenomatch_exit:$?"
+          echo "=== humanehealth before ==="
+          gcloud beta run domain-mappings describe \
+            --domain=humanehealth.devoutshaman.com \
+            --region=us-west1 \
+            --project=devo-holding \
+            --format=yaml
+          if [ $? -ne 0 ]; then
+            echo "=== create with deploy identity ==="
+            gcloud beta run domain-mappings create \
+              --service=humanehealth-web \
+              --domain=humanehealth.devoutshaman.com \
+              --region=us-west1 \
+              --project=devo-holding \
+              --quiet
+            echo "create_exit:$?"
+          fi
+          gcloud beta run domain-mappings describe \
+            --domain=humanehealth.devoutshaman.com \
+            --region=us-west1 \
+            --project=devo-holding \
+            --format=yaml
+          if [ $? -eq 0 ]; then
+            echo "MAPPING_READY"
+            exit 0
+          fi
+          if [ -z "${GCP_SA_KEY}" ]; then
+            echo "GCP_SA_KEY missing"
+            exit 1
+          fi
+          echo "GCP_SA_KEY set len=${#GCP_SA_KEY}"
+          umask 077
+          printf '%s' "${GCP_SA_KEY}" > /tmp/sa.json
+          gcloud auth activate-service-account --key-file=/tmp/sa.json
+          rm -f /tmp/sa.json
+          echo "=== key account ==="
+          gcloud auth list --filter=status:ACTIVE --format='value(account)'
+          echo "=== key verified domains ==="
+          gcloud domains list-user-verified --format=yaml
+          gcloud beta run domain-mappings create \
+            --service=humanehealth-web \
+            --domain=humanehealth.devoutshaman.com \
+            --region=us-west1 \
+            --project=devo-holding \
+            --quiet
+          echo "key_create_exit:$?"
+          gcloud beta run domain-mappings describe \
+            --domain=humanehealth.devoutshaman.com \
+            --region=us-west1 \
+            --project=devo-holding \
+            --format=yaml
+          describe_exit=$?
+          echo "key_describe_exit:${describe_exit}"
+          exit ${describe_exit}
