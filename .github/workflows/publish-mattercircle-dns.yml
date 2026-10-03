@@ -1,0 +1,127 @@
+# Publish mattercircle.devoutshaman.com in the existing devoutshaman.com zone.
+# Cloud Run mattercircle-web is already live. The deploy service account cannot
+# verify domains, so this proxies the hostname through Cloudflare and sends the
+# Cloud Run host header.
+name: Publish mattercircle DNS
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  dns:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+      CF_TOKEN: ${{ secrets.CF_TOKEN }}
+      CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+      CLOUDFLARE_DNS_API_TOKEN: ${{ secrets.CLOUDFLARE_DNS_API_TOKEN }}
+    steps:
+      - name: Publish the hostname
+        run: |
+          set -u
+          python3 - <<'PY'
+          import os
+          names = [
+            "CLOUDFLARE_API_TOKEN","CF_API_TOKEN","CLOUDFLARE_TOKEN",
+            "CF_TOKEN","CLOUDFLARE_API_KEY","CLOUDFLARE_DNS_API_TOKEN",
+          ]
+          for name in names:
+              val = os.environ.get(name) or ""
+              print(f"{name}={'set' if val else 'missing'} len={len(val)}")
+          PY
+          token="${CLOUDFLARE_API_TOKEN:-${CF_API_TOKEN:-${CLOUDFLARE_TOKEN:-${CF_TOKEN:-${CLOUDFLARE_API_KEY:-${CLOUDFLARE_DNS_API_TOKEN:-}}}}}}"
+          if [ -z "$token" ]; then
+            echo "NO_CLOUDFLARE_TOKEN"
+            exit 1
+          fi
+          origin="mattercircle-web-384302503084.us-west1.run.app"
+          zone_json="$(curl -sS -H "Authorization: Bearer $token" \
+            "https://api.cloudflare.com/client/v4/zones?name=devoutshaman.com")"
+          Z="$zone_json" python3 - <<'PY'
+          import json, os
+          d = json.loads(os.environ["Z"])
+          print("zone_success", d.get("success"), "errors", d.get("errors"))
+          result = d.get("result") or []
+          print("zones", len(result))
+          if not result:
+              raise SystemExit(1)
+          open("/tmp/zone_id","w").write(result[0]["id"])
+          PY
+          zone_id="$(cat /tmp/zone_id)"
+          existing="$(curl -sS -H "Authorization: Bearer $token" \
+            "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records?name=mattercircle.devoutshaman.com")"
+          Z="$existing" python3 - <<'PY'
+          import json, os
+          d = json.loads(os.environ["Z"])
+          rows = d.get("result") or []
+          print("existing", len(rows), "success", d.get("success"), "errors", d.get("errors"))
+          open("/tmp/record_id","w").write(rows[0]["id"] if rows else "")
+          PY
+          record_id="$(cat /tmp/record_id)"
+          body="$(python3 - <<PY
+          import json
+          print(json.dumps({
+            "type": "CNAME",
+            "name": "mattercircle",
+            "content": "$origin",
+            "proxied": True,
+            "ttl": 1,
+          }))
+          PY
+          )"
+          if [ -n "$record_id" ]; then
+            resp="$(curl -sS -X PUT -H "Authorization: Bearer $token" -H 'Content-Type: application/json' \
+              "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records/$record_id" --data "$body")"
+          else
+            resp="$(curl -sS -X POST -H "Authorization: Bearer $token" -H 'Content-Type: application/json' \
+              "https://api.cloudflare.com/client/v4/zones/$zone_id/dns_records" --data "$body")"
+          fi
+          Z="$resp" python3 - <<'PY'
+          import json, os, sys
+          d = json.loads(os.environ["Z"])
+          result = d.get("result") or {}
+          print("dns_success", d.get("success"))
+          print("errors", d.get("errors"))
+          print("name", result.get("name"), "content", result.get("content"), "proxied", result.get("proxied"))
+          if not d.get("success"):
+              sys.exit(1)
+          PY
+          ruleset="$(curl -sS -H "Authorization: Bearer $token" \
+            "https://api.cloudflare.com/client/v4/zones/$zone_id/rulesets/phases/http_request_origin/entrypoint")"
+          Z="$ruleset" ORIGIN="$origin" python3 - <<'PY'
+          import json, os
+          d = json.loads(os.environ["Z"])
+          origin = os.environ["ORIGIN"]
+          rules = []
+          if d.get("success") and d.get("result"):
+              rules = list((d["result"].get("rules") or []))
+          rules = [r for r in rules if "mattercircle.devoutshaman.com" not in json.dumps(r)]
+          rules.append({
+              "expression": '(http.host eq "mattercircle.devoutshaman.com")',
+              "description": "Mattercircle Cloud Run origin",
+              "action": "route",
+              "action_parameters": {
+                  "host_header": origin,
+                  "origin": {"host": origin},
+              },
+          })
+          open("/tmp/rules.json","w").write(json.dumps({"rules": rules}))
+          print("origin_rules", len(rules), "entrypoint_success", d.get("success"), "errors", d.get("errors"))
+          PY
+          put="$(curl -sS -X PUT -H "Authorization: Bearer $token" -H 'Content-Type: application/json' \
+            "https://api.cloudflare.com/client/v4/zones/$zone_id/rulesets/phases/http_request_origin/entrypoint" \
+            --data @/tmp/rules.json)"
+          Z="$put" python3 - <<'PY'
+          import json, os, sys
+          d = json.loads(os.environ["Z"])
+          print("rules_success", d.get("success"))
+          print("errors", d.get("errors"))
+          if not d.get("success"):
+              sys.exit(1)
+          PY
